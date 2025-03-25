@@ -12,7 +12,7 @@ export class UserProfile{
     @Column({type : "varchar", length : 30})
     lastName : string;
 
-    @Column({type : "varchar", length : 10, unique : true})
+    @Column({type : "varchar", unique : true})
     phoneNumber : string;
 
     @Column({type : "varchar", length : 50})
@@ -28,13 +28,13 @@ export class UserProfile{
     constructor(
         firstName : string,
         lastName : string,
-        phoneNumber : string,
+        phoneNumbers : string,
         address : string,
         resume : string | null
     ){
         this.firstName = firstName ,
         this.lastName = lastName ,
-        this.phoneNumber = phoneNumber ,
+        this.phoneNumber = phoneNumbers ,
         this.address = address ,
         this.resume = resume 
     }

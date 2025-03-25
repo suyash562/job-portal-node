@@ -1,6 +1,6 @@
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { registerRepo } from "../repository/userRepository";
+import { registerRepo, vefiryUserCredentials } from "../repository/userRepository";
 
 
 export const registerService = async (user : User & UserProfile) => {
@@ -8,12 +8,15 @@ export const registerService = async (user : User & UserProfile) => {
         const newUser = new User(user.email, user.password, user.role);
         const newUserProfile = new UserProfile(user.firstName, user.lastName, user.phoneNumber, user.address, user.resume ?? null);
         newUser.profile = newUserProfile;
-        console.log(newUser);
         
         return await registerRepo(newUser);
     }
     catch(err){
         console.log(err);
-        return false;
+        return {statusCode : 500, message : 'Internal Server Error'};
     }
+}
+
+export const loginService = async (user : Partial<User>) => {
+    return await vefiryUserCredentials(user);
 }
