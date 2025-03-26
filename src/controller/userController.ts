@@ -4,18 +4,21 @@ import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import { Errors } from "../types/types";
 import jwt from 'jsonwebtoken';
+import { EmployeerCompany } from "../entities/employeerCompany";
 
 export const registerController = async (req : Request, res : Response) => {
     try{
-        const {user} : {user : User & UserProfile}= req.body;
-        const result : boolean | Errors = await registerService(user);
+        const {user, employeerCompany} : {user : User & UserProfile, employeerCompany : EmployeerCompany} = req.body;
+        console.log(user, employeerCompany);
+        const result : boolean | Errors = await registerService(user, employeerCompany);
         
-        if(result === true){
-            res.status(200).send(true);
-        }
-        else{
-            res.status(result.statusCode).send({error : result.message});
-        }
+        
+        // if(result === true){
+        //     res.status(200).send(true);
+        // }
+        // else{
+        //     res.status(result.statusCode).send({error : result.message});
+        // }
     }
     catch(err){
         console.log(err);

@@ -1,5 +1,6 @@
 import { Column, Entity, OneToOne, PrimaryColumn } from "typeorm";
 import { UserProfile } from "./userProfile";
+import { EmployeerCompany } from "./employeerCompany";
 
 @Entity({name : 'job_portal_user'})
 export class User{
@@ -14,6 +15,9 @@ export class User{
 
     @OneToOne(()=>UserProfile, (userProfile) => userProfile.user, {cascade : true})
     profile! : UserProfile;
+    
+    @OneToOne(()=>EmployeerCompany, (employeerCompany) => employeerCompany.user, {cascade : true})
+    employeerCompany! : EmployeerCompany;
 
     constructor(
         email : string,

@@ -1,4 +1,5 @@
-import { Check, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user";
 
 @Entity({name : 'job_portal_employee_company'})
 export class EmployeerCompany{
@@ -26,6 +27,10 @@ export class EmployeerCompany{
     
     @Column({type : "int"})
     averageRating : number;
+
+    @OneToOne(()=>User, (user) => user.employeerCompany, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    @JoinColumn()
+    user! : User;
 
     constructor(
         name : string,
