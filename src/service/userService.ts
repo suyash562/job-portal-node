@@ -2,6 +2,7 @@ import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import { getUserProfile, getUserRole, registerRepo, vefiryUserCredentials } from "../repository/userRepository";
+import { RequestResult } from "../types/types";
 
 
 export const registerService = async (user : User & UserProfile, employeerCompany : EmployeerCompany) => {
@@ -35,7 +36,7 @@ export const registerService = async (user : User & UserProfile, employeerCompan
     }
     catch(err){
         console.log(err);
-        return {statusCode : 500, message : 'Internal Server Error'};
+        return new RequestResult(500, 'Internal Server Error', null);
     }
 }
 

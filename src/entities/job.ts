@@ -1,4 +1,5 @@
-import { Check, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user";
 
 @Entity({name : 'job_portal_job'})
 export class Job{
@@ -28,7 +29,7 @@ export class Job{
     @Check("workMode in ('Offline', 'Online', 'Hybrid')")
     workMode : 'Offline' | 'Online' | 'Hybrid';
     
-    @Column({type : "int"})
+    @Column({type : "varchar"})
     salaryRange : string; 
     
     @Column({type : "varchar"})
@@ -45,6 +46,13 @@ export class Job{
 
     @Column({type : "datetime"})
     postingDate : Date;
+
+    @ManyToOne(() => User, (user) => user.postedJobs, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    employeer! : User;
+    
+    @ManyToMany(() => User, (user) => user.appliedJobs)
+    @JoinTable()
+    appliedUser! : User[];
 
     constructor(
         title : string,

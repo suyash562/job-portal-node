@@ -3,6 +3,7 @@
 select * from job_portal_user;
 select * from job_portal_user_profile;
 select * from job_portal_employee_company;
+select * from job_portal_job;
 
 --truncate table job_portal_user_profile
 -- alter table job_portal_user_profile drop column phoneNumber;

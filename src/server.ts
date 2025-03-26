@@ -4,6 +4,7 @@ import cors from 'cors';
 import { AppDataSource } from "./config/database";
 import userRouter from "./routes/userRoutes";
 import cookieParser from 'cookie-parser';
+import employeerRouter from "./routes/employeerRoutes";
 
 dotenv.config();
 
@@ -16,7 +17,9 @@ app.use(cors({
     origin : 'http://localhost:4200',
     credentials : true
 }));
+
 app.use('/user',userRouter);
+app.use('/employeer',employeerRouter);
 
 AppDataSource.initialize().then(()=>{
     app.listen(PORT, ()=>{

@@ -1,15 +1,16 @@
 import { AppDataSource } from "../config/database"
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
+import { RequestResult } from "../types/types";
 
 export const registerRepo = async (user : User) => {
     try{
         await AppDataSource.getRepository(User).save(user);
-        return true;
+        return new RequestResult(200, 'success', true);
     }
     catch(err){
         console.log(err);
-        return {statusCode : 500, message : 'Internal Server Error'};
+        return new RequestResult(500, 'Internal Server Error', null);
     }
 }
 
@@ -21,13 +22,13 @@ export const vefiryUserCredentials = async (user : Partial<User>) => {
         });
         
         if(result){
-            return result;
+            return new RequestResult(200, 'success', result);
         }
-        return {statusCode : 401, message : 'Unauthorized'};
+        return new RequestResult(401, 'Unauthorized', null);
     }
     catch(err : any){
         console.log(err.code);
-        return {statusCode : 500, message : 'Internal Server Error'};
+        return new RequestResult(500, 'Internal Server Error', null);
     }
 } 
 
@@ -42,13 +43,13 @@ export const getUserProfile = async (user : Partial<User>) => {
         .getOne();
         
         if(result){
-            return result;
+            return new RequestResult(200, 'success', result);
         }
-        return {statusCode : 201, message : 'User Profile Not Found'};
+        return  new RequestResult(201, 'User Profile Not Found', null);
     }
     catch(err : any){
         console.log(err.code);
-        return {statusCode : 500, message : 'Internal Server Error'};
+        return new RequestResult(500, 'Internal Server Error', null);
     }
 } 
 
@@ -60,12 +61,12 @@ export const getUserRole = async (user : Partial<User>) => {
         });
         
         if(result){
-            return result.role;
+            return new RequestResult(200, 'success', result.role);
         }
-        return {statusCode : 401, message : 'Unauthorized'};
+        return new RequestResult(401, 'Unauthorized', null);
     }
     catch(err : any){
         console.log(err.code);
-        return {statusCode : 500, message : 'Internal Server Error'};
+        return new RequestResult(500, 'Internal Server Error', null);
     }
 } 
