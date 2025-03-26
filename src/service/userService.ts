@@ -1,7 +1,7 @@
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { registerRepo, vefiryUserCredentials } from "../repository/userRepository";
+import { getUserProfile, getUserRole, registerRepo, vefiryUserCredentials } from "../repository/userRepository";
 
 
 export const registerService = async (user : User & UserProfile, employeerCompany : EmployeerCompany) => {
@@ -41,4 +41,12 @@ export const registerService = async (user : User & UserProfile, employeerCompan
 
 export const loginService = async (user : Partial<User>) => {
     return await vefiryUserCredentials(user);
+}
+
+export const getUserProfileService = async (user : Partial<User>) => {
+    return await getUserProfile(user);
+}
+
+export const getUserRoleService = async (user : Partial<User>) => {
+    return await getUserRole(user);
 }

@@ -6,7 +6,7 @@ export const authenticateUserCredentials = async (req : Request, res : Response,
         const {userToken}  = req.cookies;
         
         if(userToken){
-            const user  = jwt.verify(userToken, process.env.KEY!);
+            const user = jwt.verify(userToken, process.env.KEY!);
             req.body.user = user;
             next();
         }
