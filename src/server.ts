@@ -4,7 +4,7 @@ import cors from 'cors';
 import { AppDataSource } from "./config/database";
 import userRouter from "./routes/userRoutes";
 import cookieParser from 'cookie-parser';
-import employeerRouter from "./routes/employeerRoutes";
+import jobRouter from "./routes/jobRoutes";
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.use(cors({
 }));
 
 app.use('/user',userRouter);
-app.use('/employeer',employeerRouter);
+app.use('/job',jobRouter);
 
 AppDataSource.initialize().then(()=>{
     app.listen(PORT, ()=>{

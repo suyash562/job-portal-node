@@ -64,6 +64,24 @@ export const getJobByIdRepo = async (jobId : number) => {
     }
 }
 
+export const getAllJobsRepo = async (page : number, limit : number) => {
+    try{
+        const jobs : Job[] = await AppDataSource.getRepository(Job)
+        .createQueryBuilder("job")
+        .leftJoinAndSelect("job.employeer","user")
+        .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
+        .skip((page - 1)*limit)
+        .take(limit)
+        .getMany();
+
+        return new RequestResult(200,'Success',jobs); 
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500,'Internal Server Error',null);
+    }
+}
+
 export const deleteJobRepo = async (jobId : number) => {
     try{
         const jobs = await AppDataSource.getRepository(Job).delete(jobId);

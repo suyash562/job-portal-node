@@ -1,6 +1,6 @@
 import { Job } from "../entities/job";
 import { User } from "../entities/user";
-import { addJobRepo, deleteJobRepo, getEmployeerPostedJobsRepo, getJobByIdRepo, updateJobRepo } from "../repository/employeerRepository";
+import { addJobRepo, deleteJobRepo, getAllJobsRepo, getEmployeerPostedJobsRepo, getJobByIdRepo, updateJobRepo } from "../repository/jobRepository";
 import { RequestResult } from "../types/types";
 
 
@@ -47,6 +47,16 @@ export const deleteJobService = async (jobId : number) => {
 export const getJobByIdService = async (jobId : number) => {
     try{
         return await getJobByIdRepo(jobId);
+    }
+    catch(err){
+        console.log(err);
+        return  new RequestResult(500,'Internal Server Error',null);;
+    }
+}
+
+export const getAllJobsService = async (page : number, limit : number) => {
+    try{
+        return await getAllJobsRepo(page, limit);
     }
     catch(err){
         console.log(err);
