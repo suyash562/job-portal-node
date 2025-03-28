@@ -1,5 +1,6 @@
-import { Check, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user";
+import { Application } from "./application";
 
 @Entity({name : 'job_portal_job'})
 export class Job{
@@ -50,9 +51,8 @@ export class Job{
     @ManyToOne(() => User, (user) => user.postedJobs, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     employeer! : User;
     
-    @ManyToMany(() => User, (user) => user.appliedJobs)
-    @JoinTable()
-    appliedUser! : User[];
+    @OneToMany(() => Application, (application) => application.job)
+    userAppliedForJob! : Application[];
 
     constructor(
         title : string,

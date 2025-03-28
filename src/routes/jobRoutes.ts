@@ -5,10 +5,10 @@ import { authenticateUserCredentials } from "../middleware/authenticate";
 const jobRouter : Router = Router();
     
 jobRouter.get('/jobs', getAllJobsController);
+jobRouter.get('/employeer', authenticateUserCredentials, getEmployeerPostedJobsController);
 jobRouter.get('/:jobId', getJobByIdController);
 
 jobRouter.post('/addJob', authenticateUserCredentials, addJobController);
-jobRouter.get('/employeer', authenticateUserCredentials, getEmployeerPostedJobsController);
 jobRouter.delete('/deleteJob/:jobId', authenticateUserCredentials, deleteJobController);
 jobRouter.put('/updateJob', authenticateUserCredentials, updateJobController);
 

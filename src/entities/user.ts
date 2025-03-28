@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { UserProfile } from "./userProfile";
 import { EmployeerCompany } from "./employeerCompany";
 import { Job } from "./job";
+import { Application } from "./application";
 
 @Entity({name : 'job_portal_user'})
 export class User{
@@ -23,8 +24,8 @@ export class User{
     @OneToMany(()=>Job, (job) => job.employeer)
     postedJobs! : Job[];
     
-    @ManyToMany(()=>Job, (job) => job.appliedUser)
-    appliedJobs! : Job[];
+    @OneToMany(()=>Application, (application) => application.user)
+    appliedJobs! : Application[];
 
     constructor(
         email : string,
