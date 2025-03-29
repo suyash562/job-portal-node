@@ -14,7 +14,7 @@ export const applyForJobRepo = async (user : User, jobId : number) => {
         })
         
         if(existingUser && existingJob){
-            const newApplication : Application = new Application(new Date(),'Pending', existingUser, existingJob);
+            const newApplication : Application = new Application(new Date(),'Pending', existingUser, existingJob, true);
             await AppDataSource.getRepository(Application).save(newApplication);
             return new RequestResult(200, 'success', true);
         }
@@ -34,6 +34,7 @@ export const getApplicationsForEmployeerRepo = async (user : User) => {
         .leftJoinAndSelect("application.job","job")
         .leftJoinAndSelect("user.profile","profile")
         .where("job.employeer = :email", {email : user.email})
+        .andWhere("application.isActive = :isActive", {isActive : 1})
         .getMany();
         
         return new RequestResult(200, 'success', applications);

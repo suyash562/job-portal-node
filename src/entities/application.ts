@@ -13,6 +13,9 @@ export class Application{
     @Column({type : "varchar", length : 10})
     status : 'Pending' | 'Interview' | 'Accepted' | 'Rejected';
 
+    @Column({type : "bit"})
+    isActive : boolean;
+
     @ManyToOne(()=>User)
     user! : User;
 
@@ -23,11 +26,13 @@ export class Application{
         applyDate : Date,
         status : 'Pending' | 'Interview' | 'Accepted' | 'Rejected',
         user : User,
-        job : Job
+        job : Job,
+        isActive : boolean
     ){
         this.applyDate = applyDate;
         this.status = status;
         this.user = user;
-        this.job = job
+        this.job = job;
+        this.isActive = isActive;
     }
 }

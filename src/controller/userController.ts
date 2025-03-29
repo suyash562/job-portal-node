@@ -3,18 +3,14 @@ import { getUserProfileService, getUserRoleService, loginService, registerServic
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
-import { EmployeerCompany } from "../entities/employeerCompany";
 import { RequestResult } from "../types/types";
 
 
 export const registerController = async (req : Request, res : Response) => {
     try{
-
-        const user : User & UserProfile = req.body;
-        console.log(req.file);
-        
-        // const result : RequestResult = await registerService(user);
-        // res.status(result.statusCode).send(result); 
+        const user : User & UserProfile = req.body;       
+        const result : RequestResult = await registerService(user);
+        res.status(result.statusCode).send(result); 
     }
     catch(err){
         console.log(err);

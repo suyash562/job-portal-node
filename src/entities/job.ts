@@ -48,6 +48,9 @@ export class Job{
     @Column({type : "datetime"})
     postingDate : Date;
 
+    @Column({type : "bit"})
+    isActive! : boolean;
+
     @ManyToOne(() => User, (user) => user.postedJobs, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     employeer! : User;
     
@@ -68,6 +71,7 @@ export class Job{
         deadlineForApplying : Date,
         workLocation : string,
         postingDate : Date,
+        isActive : boolean
     ){
         this.title = title;
         this.description = description;
@@ -82,5 +86,6 @@ export class Job{
         this.deadlineForApplying = deadlineForApplying;
         this.workLocation = workLocation;
         this.postingDate = postingDate;
+        this.isActive = isActive;
     }
 }

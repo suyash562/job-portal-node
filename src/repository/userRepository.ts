@@ -4,7 +4,7 @@ import { UserProfile } from "../entities/userProfile";
 import { RequestResult } from "../types/types";
 
 export const registerRepo = async (user : User) => {
-    try{
+    try{        
         await AppDataSource.getRepository(User).save(user);
         return new RequestResult(200, 'success', true);
     }

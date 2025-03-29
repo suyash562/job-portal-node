@@ -1,4 +1,5 @@
 import { AppDataSource } from "../config/database"
+import { Application } from "../entities/application";
 import { Job } from "../entities/job";
 import { User } from "../entities/user"
 import { RequestResult } from "../types/types";
@@ -38,7 +39,8 @@ export const getEmployeerPostedJobsRepo = async (user : User) => {
         .createQueryBuilder("job")
         .select()
         .where({
-            employeer : user.email
+            employeer : user.email,
+            isActive : 1
         })
         .getMany()
 
@@ -70,6 +72,7 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
         .createQueryBuilder("job")
         .leftJoinAndSelect("job.employeer","user")
         .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
+        .where("job.isActive = :jobId", {jobId : 1})
         .skip((page - 1)*limit)
         .take(limit)
         .getMany();
@@ -84,7 +87,23 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
 
 export const deleteJobRepo = async (jobId : number) => {
     try{
-        const jobs = await AppDataSource.getRepository(Job).delete(jobId);
+        const updateJobIdResult = await AppDataSource.getRepository(Application)
+        .createQueryBuilder("application")
+        .leftJoinAndSelect("application.job", "job")
+        .update({
+            isActive : () => '0'
+        })
+        .where("job.id = :jobId", {jobId : jobId})
+        .execute()
+        
+        const updateJobIdResult1 = await AppDataSource.getRepository(Job)
+        .createQueryBuilder("job")
+        .update({
+            isActive : () => '0'
+        })
+        .where("id = :jobId", {jobId : jobId})
+        .execute()
+
         return new RequestResult(200, 'Success', true); 
     }
     catch(err){

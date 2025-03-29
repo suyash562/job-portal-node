@@ -4,15 +4,6 @@ import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
 
-
-// const storage = multer.diskStorage({
-//   destination: './public/documents',
-//   filename: function (req, file, cb) {
-//     cb(null, req.body.email + path.extname(file.originalname))
-//   }
-// });
-
-
 const multerUpload = multer({ 
     storage : multer.diskStorage({
       destination: './public/documents',

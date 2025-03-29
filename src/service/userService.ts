@@ -5,7 +5,7 @@ import { getUserProfile, getUserRole, registerRepo, vefiryUserCredentials } from
 import { RequestResult } from "../types/types";
 
 
-export const registerService = async (user : User & UserProfile) => {
+export const registerService = async (user : any) => {
     try{
         const newUser = new User(
             user.email,
@@ -15,18 +15,18 @@ export const registerService = async (user : User & UserProfile) => {
         const newUserProfile = new UserProfile(
             user.firstName,
             user.lastName,
-            user.phoneNumber,
+            user.phoneNumbers,
             user.address,
             user.resume ?? ''
         );
-        const newEmployeerCompany = user.employeerCompany ? new EmployeerCompany(
-            user.employeerCompany.name,
-            user.employeerCompany.description,
-            user.employeerCompany.industry,
-            user.employeerCompany.companySize,
-            user.employeerCompany.website,
-            user.employeerCompany.location,
-            user.employeerCompany.averageRating
+        const newEmployeerCompany = user.role === 'employeer' ? new EmployeerCompany(
+            user.companyName,
+            user.description,
+            user.industry,
+            user.companySize,
+            user.website,
+            user.location,
+            0
         ) : null;
 
         newUser.profile = newUserProfile;
