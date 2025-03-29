@@ -5,13 +5,10 @@ select * from job_portal_user_profile;
 select * from job_portal_employee_company;
 select * from job_portal_job;
 select * from job_portal_application;
-exec sp_help job_portal_application
 
+exec sp_help job_portal_job
 
---update job_portal_job set isActive = 1 where isActive= 0;
-update job_portal_application set jobId = -1 where jobId = 3;
--- FK_4c576a12a444374c7459f14d0e5
-delete from job_portal_job where id = 3;
+update job_portal_job set deadlineForApplying = getDate() where id = 8;
 
 --truncate table job_portal_user_profile
 -- alter table job_portal_user_profile drop column phoneNumber;

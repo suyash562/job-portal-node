@@ -72,7 +72,8 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
         .createQueryBuilder("job")
         .leftJoinAndSelect("job.employeer","user")
         .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
-        .where("job.isActive = :jobId", {jobId : 1})
+        .where("job.deadlineForApplying > :currentDate", {currentDate : new Date()})
+        .andWhere("job.isActive = :jobId", {jobId : 1})
         .skip((page - 1)*limit)
         .take(limit)
         .getMany();

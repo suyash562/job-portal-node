@@ -67,7 +67,7 @@ export const getJobByIdController = async (req : Request, res : Response) => {
 }
 
 export const getAllJobsController = async (req : Request, res : Response) => {
-    try{
+    try{        
         const page : number = parseInt(req.query.page as string) || 1;
         const limit : number = parseInt(req.query.limit as string) || 5;        
         const result : RequestResult = await getAllJobsService(page, limit);
