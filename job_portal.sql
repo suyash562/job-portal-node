@@ -10,6 +10,8 @@ exec sp_help job_portal_job
 
 update job_portal_job set deadlineForApplying = getDate() where id = 8;
 
+
+--update job_portal_job set isActive = 1 where vacancies > 5;
 --truncate table job_portal_user_profile
 -- alter table job_portal_user_profile drop column phoneNumber;
 -- alter table job_portal_user_profile drop UQ_ef5c4f511eebc4b26468ee89ac6

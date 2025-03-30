@@ -31,8 +31,7 @@ export const updateJobController = async (req : Request, res : Response) => {
 export const getEmployeerPostedJobsController = async (req : Request, res : Response) => {
     try{
         
-        const {user} : {user : User} = req.body;
-        
+        const {user} : {user : User} = req.body;             
         const result : RequestResult = await getEmployeerPostedJobsService(user);
         res.status(result.statusCode).send(result);
     }

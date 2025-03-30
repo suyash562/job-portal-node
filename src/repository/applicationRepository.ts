@@ -26,6 +26,46 @@ export const applyForJobRepo = async (user : User, jobId : number) => {
     }
 }
 
+export const getApplicationByIdRepo = async (applicationId : number) => {
+    try{
+        const application : Application | null= await AppDataSource.getRepository(Application)
+        .createQueryBuilder('application')
+        .leftJoinAndSelect("application.user", "user")
+        .leftJoinAndSelect("user.profile", "profile")
+        .where("application.id = :id", {id : applicationId})
+        .getOne();
+
+        if(application){
+            return new RequestResult(200, 'Success', application);
+        }
+        
+        return new RequestResult(404, 'Resource not found', null);
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+}
+
+export const getApplicantEmailRepo = async (applicationId : number) => {
+    try{
+        const application = await AppDataSource.getRepository(Application)
+        .createQueryBuilder("application")
+        .leftJoinAndSelect("application.user","user")
+        .where("application.id = :id", {id : applicationId})
+        .getOne();
+
+        if(application){
+            return new RequestResult(200, 'success', application?.user.email);
+        }
+        return new RequestResult(404, 'Resource not found', null);
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+}
+
 export const getApplicationsForEmployeerRepo = async (user : User) => {
     try{
         
@@ -47,7 +87,6 @@ export const getApplicationsForEmployeerRepo = async (user : User) => {
 
 export const getApplicationsOfCurrentUserRepo = async (user : User) => {
     try{
-        
         const applications = await AppDataSource.getRepository(Application).createQueryBuilder("application")
         .leftJoinAndSelect("application.job","job")
         .where("application.user = :email", {email : user.email})
@@ -60,3 +99,4 @@ export const getApplicationsOfCurrentUserRepo = async (user : User) => {
         return new RequestResult(500, 'Internal Server Error', null);
     }
 }
+

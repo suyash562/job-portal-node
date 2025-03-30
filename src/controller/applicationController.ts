@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { User } from "../entities/user";
 import { RequestResult } from "../types/types";
-import { applyForJobService, getApplicationsForEmployeerService, getApplicationsOfCurrentUserService } from "../service/applicationService";
+import { applyForJobService, getApplicantEmailService, getApplicationByIdService, getApplicationsForEmployeerService, getApplicationsOfCurrentUserService } from "../service/applicationService";
+import fs from 'fs';
 
 export const applyForJobController = async (req : Request, res : Response) => {
     try{
@@ -33,6 +34,38 @@ export const getApplicationsOfCurrentUserController = async (req : Request, res 
         const {user} : {user : User} = req.body;        
         const result : RequestResult = await getApplicationsOfCurrentUserService(user);
         res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const getApplicationByIdController = async (req : Request, res : Response) => {
+    try{  
+        const applicationId : number = parseInt(req.params['applicationId'] as string);       
+        const result : RequestResult = await getApplicationByIdService(applicationId);
+        res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const getResumeByIdController = async (req : Request, res : Response) => {
+    try{         
+        const applicationId : number = parseInt(req.params['applicationId'] as string);    
+        const result : RequestResult = await getApplicantEmailService(applicationId);
+        if(result.value){
+            const resumeFile = fs.readFileSync(`./public/documents/${result.value}.pdf`); 
+            
+            res.contentType("application/pdf");
+            res.send(resumeFile);
+        }
+        else{
+            res.status(result.statusCode).send({error : result.message});
+        }
     }
     catch(err){
         console.log(err);
