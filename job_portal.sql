@@ -5,6 +5,9 @@ select * from job_portal_user_profile;
 select * from job_portal_employee_company;
 select * from job_portal_job;
 select * from job_portal_application;
+select * from interview_schedule_application;
+
+-- delete from interview_schedule_application;
 
 exec sp_help job_portal_job
 

@@ -4,6 +4,7 @@ import { UserProfile } from "../entities/userProfile";
 import { Job } from "../entities/job";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { Application } from "../entities/application";
+import { InterviewSchedule } from "../entities/interviewSchedule";
 
 export const AppDataSource = new DataSource({
     type : 'mssql',
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
     username : 'j2',
     password : '123456',
     database : 'JIBE_Main_Training',
-    entities : [User, UserProfile, Job, EmployeerCompany, Application],
+    entities : [User, UserProfile, Job, EmployeerCompany, Application, InterviewSchedule],
     synchronize : true,
     // logging : true,
     options : {
