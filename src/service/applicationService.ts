@@ -1,5 +1,5 @@
 import { User } from "../entities/user";
-import { applyForJobRepo, getApplicantEmailRepo, getApplicationByIdRepo, getApplicationsForEmployeerRepo, getApplicationsOfCurrentUserRepo } from "../repository/applicationRepository";
+import { applyForJobRepo, getApplicantEmailRepo, getApplicationByIdRepo, getApplicationsForEmployeerRepo, getApplicationsOfCurrentUserRepo, updateUserApplicationStatusRepo } from "../repository/applicationRepository";
 import { RequestResult } from "../types/types";
 
 
@@ -46,6 +46,16 @@ export const getApplicationByIdService = async (applicationId : number) => {
 export const getApplicantEmailService = async (applicationId : number) => {
     try{
         return await getApplicantEmailRepo(applicationId);
+    }
+    catch(err){
+        console.log(err);
+        return  new RequestResult(500,'Internal Server Error',null);
+    }
+}
+
+export const updateUserApplicationStatusService = async (applicationId : number, status : string) => {
+    try{
+        return await updateUserApplicationStatusRepo(applicationId, status);
     }
     catch(err){
         console.log(err);

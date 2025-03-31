@@ -1,3 +1,4 @@
+import { UpdateResult } from "typeorm";
 import { AppDataSource } from "../config/database"
 import { Application } from "../entities/application";
 import { Job } from "../entities/job";
@@ -100,3 +101,21 @@ export const getApplicationsOfCurrentUserRepo = async (user : User) => {
     }
 }
 
+export const updateUserApplicationStatusRepo = async (applicationId : number, status : string) => {
+    try{
+        const updateResult : UpdateResult = await AppDataSource.getRepository(Application)
+        .createQueryBuilder("application")
+        .update({status : (status as 'Accepted' | 'Rejected')})
+        .where({id : applicationId})
+        .execute();
+
+        if(updateResult.affected != 0 ){
+            return new RequestResult(200, 'success', true);
+        }
+        return new RequestResult(404, 'Resource not found', false);
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+}
