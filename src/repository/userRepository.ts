@@ -24,7 +24,7 @@ export const vefiryUserCredentials = async (user : Partial<User>) => {
         if(result){
             return new RequestResult(200, 'success', result);
         }
-        return new RequestResult(401, 'Unauthorized', null);
+        return new RequestResult(401, 'Incorrect email or password', null);
     }
     catch(err : any){
         console.log(err.code);

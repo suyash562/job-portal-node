@@ -1,14 +1,24 @@
 import { Router } from "express";
-import { getUserProfileController, getUserRoleController, loginController, logoutController, registerController } from "../controller/userController";
+import { getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+
+
+function getResumesCount(email : string){
+  fs.readdir(`./public/documents/${email}`, (err, files) => {
+    return files.length + 1;
+  });
+}
 
 const multerUpload = multer({ 
     storage : multer.diskStorage({
-      destination: './public/documents',
+      destination: function (req, file, cb) {
+        cb(null, `./public/documents/${req.body.email}`)
+      },
       filename: function (req, file, cb) {
-        cb(null, req.body.email + path.extname(file.originalname))
+        cb(null, getResumesCount(req.body.email) + path.extname(file.originalname))
       }
     }),
     fileFilter : (req, file, callback) => {
@@ -28,5 +38,7 @@ userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
 userRouter.get('/role', authenticateUserCredentials, getUserRoleController);
+userRouter.get('/resume', authenticateUserCredentials, getResumeByIdController);
+userRouter.get('/upload/resume', authenticateUserCredentials, multerUpload.single('resume'));
 
 export default userRouter;

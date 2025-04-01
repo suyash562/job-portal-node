@@ -4,7 +4,7 @@ import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
 import { RequestResult } from "../types/types";
-
+import fs from 'fs';
 
 export const registerController = async (req : Request, res : Response) => {
     try{
@@ -80,3 +80,15 @@ export const getUserRoleController = async (req : Request, res : Response) => {
     }
 }
 
+export const getResumeByIdController = async (req : Request, res : Response) => {
+    try{         
+        const {user} : {user : User} = req.body;    
+        const resumeFile = fs.readFileSync(`./public/documents/${user.email}.pdf`);     
+        res.contentType("application/pdf");
+        res.send(resumeFile);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
