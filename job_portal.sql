@@ -7,9 +7,11 @@ select * from job_portal_job;
 select * from job_portal_application;
 select * from interview_schedule_application;
 
--- delete from interview_schedule_application;
+ -- delete from interview_schedule_application where id = 13;
 
 exec sp_help job_portal_job
+
+update job_portal_application set status = 'Interview' where id = 11;
 
 update job_portal_job set deadlineForApplying = getDate() where id = 8;
 

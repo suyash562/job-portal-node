@@ -34,3 +34,20 @@ export const addInterviewScheduleRepo = async (applicationId : number, interview
         return new RequestResult(500, 'Internal Server Error', null);
     }
 }
+
+export const getScheduledInterviewsRepo = async (applicationId : number) => {
+    try{
+
+         const scheduledInterviews =  await AppDataSource.getRepository(InterviewSchedule)
+         .createQueryBuilder('interview')
+         .select()
+         .where("interview.userApplicationId = :applicationId", {applicationId : applicationId})
+         .getMany()
+
+        return new RequestResult(200, 'Success', scheduledInterviews);   
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+}
