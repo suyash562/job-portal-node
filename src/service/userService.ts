@@ -1,7 +1,7 @@
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { getUserProfile, getUserRole, registerRepo, updateResumeCount, vefiryUserCredentials } from "../repository/userRepository";
+import { decreaseResumeCountAndUpdatePrimaryResume, getUserProfile, getUserRole, registerRepo, updatePrimaryResume, updateResumeCount, vefiryUserCredentials } from "../repository/userRepository";
 import { RequestResult } from "../types/types";
 
 
@@ -53,6 +53,14 @@ export const getUserRoleService = async (user : Partial<User>) => {
     return await getUserRole(user);
 }
 
-export const updateResumeCountService = async (email : string) => {
-    return await updateResumeCount(email);
+export const updateResumeCountService = async (email : string, count :number) => {
+    return await updateResumeCount(email, count);
+}
+
+export const updatePrimaryResumeService = async (email : string, resumeNumber : number) => {
+    return await updatePrimaryResume(email, resumeNumber);
+}
+
+export const decreaseResumeCountAndUpdatePrimaryResumeService = async (email : string) => {
+    return await decreaseResumeCountAndUpdatePrimaryResume(email);
 }

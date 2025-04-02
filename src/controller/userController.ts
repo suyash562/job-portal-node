@@ -1,10 +1,32 @@
 import { Request, Response } from "express";
-import { getUserProfileService, getUserRoleService, loginService, registerService, updateResumeCountService } from "../service/userService";
+import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService } from "../service/userService";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
 import { RequestResult } from "../types/types";
 import fs from 'fs';
+
+
+function renameFiles(email : string, deletedResumeNumber : number){
+    try{
+        const files = fs.readdirSync(`./public/documents/${email}`);
+        if(files.length === 0){
+            return;
+        }
+        else if(deletedResumeNumber === 2 && files.length === 2){
+            fs.renameSync(`./public/documents/${email}/3.pdf`,`./public/documents/${email}/2.pdf`)
+        }
+        else if(deletedResumeNumber === 1 && files.length === 2){
+            fs.renameSync(`./public/documents/${email}/3.pdf`,`./public/documents/${email}/1.pdf`)
+        }
+        else if(deletedResumeNumber === 1){
+            fs.renameSync(`./public/documents/${email}/2.pdf`,`./public/documents/${email}/1.pdf`)
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+}
 
 export const registerController = async (req : Request, res : Response) => {
     try{
@@ -97,7 +119,7 @@ export const getResumeByIdController = async (req : Request, res : Response) => 
 export const uploadResumeController = async (req : Request, res : Response) => {
     try{         
         const user : User = req.body;
-        const requestResult : RequestResult = await updateResumeCountService(user.email);
+        const requestResult : RequestResult = await updateResumeCountService(user.email, 1);
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){
@@ -106,3 +128,38 @@ export const uploadResumeController = async (req : Request, res : Response) => {
     }
 }
 
+export const updatePrimaryResumeController = async (req : Request, res : Response) => {
+    try{         
+        const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;
+        const requestResult : RequestResult = await updatePrimaryResumeService(user.email, resumeNumber);
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const deleteResumeController = async (req : Request, res : Response) => {
+    try{         
+        const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;
+        const filePath = `./public/documents/${user.email}/${resumeNumber}.pdf`;
+
+        if(fs.existsSync(filePath)){
+            const decreaseResumeCountResult = await decreaseResumeCountAndUpdatePrimaryResumeService(user.email);
+            if(decreaseResumeCountResult.value){
+                fs.unlinkSync(filePath);
+                renameFiles(user.email, resumeNumber);
+                res.status(decreaseResumeCountResult.statusCode).send(decreaseResumeCountResult);
+            }
+            else{
+                res.status(decreaseResumeCountResult.statusCode).send(decreaseResumeCountResult);
+            }
+        }
+        else{
+            res.status(404).send({error : 'Resource not found'});
+        }
+    }
+    catch(err){
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}

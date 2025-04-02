@@ -71,12 +71,43 @@ export const getUserRole = async (user : Partial<User>) => {
     }
 } 
 
-export const updateResumeCount = async (userEmail : string) => {
+export const updateResumeCount = async (userEmail : string, count : number) => {
     try{
         const result = await AppDataSource.getRepository(UserProfile)
         .createQueryBuilder('userProfile')
         .leftJoinAndSelect('userProfile.user', 'user')
-        .update({resumeCount : () => "resumeCount + 1"})
+        .update({resumeCount : () => "resumeCount + :count"})
+        .setParameters({count : count})
+        .where("user.email = :email", {email : userEmail})
+        .execute();
+        
+        const userProfile = await AppDataSource.getRepository(UserProfile)
+        .createQueryBuilder('userProfile')
+        .leftJoinAndSelect('userProfile.user', 'user')
+        .where("user.email = :email", {email : userEmail})
+        .getOne();
+
+        if(userProfile?.primaryResume === 0){
+            updatePrimaryResume(userEmail, 1);
+        }
+
+        if(result.affected != 0){
+            return new RequestResult(200, 'success', true);
+        }
+        return new RequestResult(401, 'Resource not found', null);
+    }
+    catch(err : any){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+} 
+
+export const updatePrimaryResume = async (userEmail : string, resumeNumber : number) => {
+    try{
+        const result = await AppDataSource.getRepository(UserProfile)
+        .createQueryBuilder('userProfile')
+        .leftJoinAndSelect('userProfile.user', 'user')
+        .update({primaryResume : resumeNumber})
         .where("user.email = :email", {email : userEmail})
         .execute();
         
@@ -84,6 +115,26 @@ export const updateResumeCount = async (userEmail : string) => {
             return new RequestResult(200, 'success', true);
         }
         return new RequestResult(401, 'Resource not found', null);
+    }
+    catch(err : any){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+} 
+
+export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : string) => {
+    try{
+        const updateResumeCountResult = await updateResumeCount(userEmail, -1);
+
+        const result = await AppDataSource.getRepository(UserProfile)
+        .createQueryBuilder('userProfile')
+        .leftJoinAndSelect('userProfile.user', 'user')
+        .update({primaryResume : () => "resumeCount"})
+        .where("user.email = :email", {email : userEmail})
+        .andWhere("primaryResume > resumeCount")
+        .execute();
+    
+        return new RequestResult(200, 'success', true);
     }
     catch(err : any){
         console.log(err);
