@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getUserProfileService, getUserRoleService, loginService, registerService } from "../service/userService";
+import { getUserProfileService, getUserRoleService, loginService, registerService, updateResumeCountService } from "../service/userService";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
@@ -83,7 +83,8 @@ export const getUserRoleController = async (req : Request, res : Response) => {
 export const getResumeByIdController = async (req : Request, res : Response) => {
     try{         
         const {user} : {user : User} = req.body;    
-        const resumeFile = fs.readFileSync(`./public/documents/${user.email}.pdf`);     
+        const resumeNumber : number = parseInt(req.params['resumeNumber']);    
+        const resumeFile = fs.readFileSync(`./public/documents/${user.email}/${resumeNumber}.pdf`);     
         res.contentType("application/pdf");
         res.send(resumeFile);
     }
@@ -92,3 +93,16 @@ export const getResumeByIdController = async (req : Request, res : Response) => 
         res.status(500).send({error : "Internal Server Error"});
     }
 }
+
+export const uploadResumeController = async (req : Request, res : Response) => {
+    try{         
+        const user : User = req.body;
+        const requestResult : RequestResult = await updateResumeCountService(user.email);
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+

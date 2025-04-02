@@ -70,3 +70,23 @@ export const getUserRole = async (user : Partial<User>) => {
         return new RequestResult(500, 'Internal Server Error', null);
     }
 } 
+
+export const updateResumeCount = async (userEmail : string) => {
+    try{
+        const result = await AppDataSource.getRepository(UserProfile)
+        .createQueryBuilder('userProfile')
+        .leftJoinAndSelect('userProfile.user', 'user')
+        .update({resumeCount : () => "resumeCount + 1"})
+        .where("user.email = :email", {email : userEmail})
+        .execute();
+        
+        if(result.affected != 0){
+            return new RequestResult(200, 'success', true);
+        }
+        return new RequestResult(401, 'Resource not found', null);
+    }
+    catch(err : any){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+} 

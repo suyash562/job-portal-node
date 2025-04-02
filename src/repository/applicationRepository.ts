@@ -48,16 +48,17 @@ export const getApplicationByIdRepo = async (applicationId : number) => {
     }
 }
 
-export const getApplicantEmailRepo = async (applicationId : number) => {
+export const getApplicantEmailAndPrimaryResumeRepo = async (applicationId : number) => {
     try{
         const application = await AppDataSource.getRepository(Application)
         .createQueryBuilder("application")
         .leftJoinAndSelect("application.user","user")
+        .leftJoinAndSelect("user.profile","profile")
         .where("application.id = :id", {id : applicationId})
         .getOne();
 
         if(application){
-            return new RequestResult(200, 'success', application?.user.email);
+            return new RequestResult(200, 'success', {email : application?.user.email, primaryResume : application.user.profile.primaryResume});
         }
         return new RequestResult(404, 'Resource not found', null);
     }

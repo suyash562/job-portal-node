@@ -1,15 +1,29 @@
 import { Router } from "express";
-import { getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController } from "../controller/userController";
+import { getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, uploadResumeController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
 
-function getResumesCount(email : string){
-  fs.readdir(`./public/documents/${email}`, (err, files) => {
-    return files.length + 1;
-  });
+function getResumesCount(email : string) : string {
+  let fileName : string = '1';
+  let path : string = `./public/documents/${email}`;
+
+  try{
+    if(fs.existsSync(path)){
+      const files = fs.readdirSync(path);
+      fileName = (files.length + 1).toString();
+    }
+    else{
+      fs.mkdirSync(path);
+    }
+    return fileName;
+  }
+  catch(err) {
+    console.log(err);
+    return fileName;
+  }
 }
 
 const multerUpload = multer({ 
@@ -38,7 +52,7 @@ userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
 userRouter.get('/role', authenticateUserCredentials, getUserRoleController);
-userRouter.get('/resume', authenticateUserCredentials, getResumeByIdController);
-userRouter.get('/upload/resume', authenticateUserCredentials, multerUpload.single('resume'));
+userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, getResumeByIdController);
+userRouter.post('/upload/resume', authenticateUserCredentials, multerUpload.single('resume'), uploadResumeController);
 
 export default userRouter;

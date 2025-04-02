@@ -18,8 +18,11 @@ export class UserProfile{
     @Column({type : "varchar", length : 50})
     address : string;
     
-    @Column({type : "varchar", length : 20})
-    resume : string | null;
+    @Column({type : "smallint"})
+    resumeCount : number;
+    
+    @Column({type : "smallint"})
+    primaryResume : number;
 
     @OneToOne(()=>User, (user) => user.profile, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
     @JoinColumn()
@@ -30,12 +33,14 @@ export class UserProfile{
         lastName : string,
         phoneNumbers : string,
         address : string,
-        resume : string | null
+        resumeCount : number,
+        primaryResume : number,
     ){
         this.firstName = firstName ,
         this.lastName = lastName ,
         this.phoneNumber = phoneNumbers ,
         this.address = address ,
-        this.resume = resume 
+        this.resumeCount = resumeCount, 
+        this.primaryResume = primaryResume
     }
 }

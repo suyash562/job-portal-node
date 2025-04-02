@@ -1,5 +1,5 @@
 import { User } from "../entities/user";
-import { applyForJobRepo, getApplicantEmailRepo, getApplicationByIdRepo, getApplicationsForEmployeerRepo, getApplicationsOfCurrentUserRepo, updateUserApplicationStatusRepo } from "../repository/applicationRepository";
+import { applyForJobRepo, getApplicantEmailAndPrimaryResumeRepo, getApplicationByIdRepo, getApplicationsForEmployeerRepo, getApplicationsOfCurrentUserRepo, updateUserApplicationStatusRepo } from "../repository/applicationRepository";
 import { RequestResult } from "../types/types";
 
 
@@ -43,9 +43,9 @@ export const getApplicationByIdService = async (applicationId : number) => {
     }
 }
 
-export const getApplicantEmailService = async (applicationId : number) => {
+export const getApplicantEmailAndPrimaryResumeService = async (applicationId : number) => {
     try{
-        return await getApplicantEmailRepo(applicationId);
+        return await getApplicantEmailAndPrimaryResumeRepo(applicationId);
     }
     catch(err){
         console.log(err);

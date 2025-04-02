@@ -1,7 +1,7 @@
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { getUserProfile, getUserRole, registerRepo, vefiryUserCredentials } from "../repository/userRepository";
+import { getUserProfile, getUserRole, registerRepo, updateResumeCount, vefiryUserCredentials } from "../repository/userRepository";
 import { RequestResult } from "../types/types";
 
 
@@ -17,7 +17,8 @@ export const registerService = async (user : any) => {
             user.lastName,
             user.phoneNumbers,
             user.address,
-            user.resume ?? ''
+            user.role === 'employeer' ? -1 : 1,
+            user.role === 'employeer' ? -1 : 1
         );
         const newEmployeerCompany = user.role === 'employeer' ? new EmployeerCompany(
             user.companyName,
@@ -50,4 +51,8 @@ export const getUserProfileService = async (user : Partial<User>) => {
 
 export const getUserRoleService = async (user : Partial<User>) => {
     return await getUserRole(user);
+}
+
+export const updateResumeCountService = async (email : string) => {
+    return await updateResumeCount(email);
 }

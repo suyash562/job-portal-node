@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../entities/user";
 import { RequestResult } from "../types/types";
-import { applyForJobService, getApplicantEmailService, getApplicationByIdService, getApplicationsForEmployeerService, getApplicationsOfCurrentUserService, updateUserApplicationStatusService } from "../service/applicationService";
+import { applyForJobService, getApplicantEmailAndPrimaryResumeService, getApplicationByIdService, getApplicationsForEmployeerService, getApplicationsOfCurrentUserService, updateUserApplicationStatusService } from "../service/applicationService";
 import fs from 'fs';
 
 export const applyForJobController = async (req : Request, res : Response) => {
@@ -53,13 +53,12 @@ export const getApplicationByIdController = async (req : Request, res : Response
     }
 }
 
-export const getResumeByIdController = async (req : Request, res : Response) => {
+export const getResumeByApplicationIdController = async (req : Request, res : Response) => {
     try{         
         const applicationId : number = parseInt(req.params['applicationId'] as string);    
-        const result : RequestResult = await getApplicantEmailService(applicationId);
+        const result : RequestResult = await getApplicantEmailAndPrimaryResumeService(applicationId);
         if(result.value){
-            const resumeFile = fs.readFileSync(`./public/documents/${result.value}.pdf`); 
-            
+            const resumeFile = fs.readFileSync(`./public/documents/${result.value.email}/${result.value.primaryResume}.pdf`); 
             res.contentType("application/pdf");
             res.send(resumeFile);
         }

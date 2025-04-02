@@ -2,12 +2,19 @@
 
 select * from job_portal_user;
 select * from job_portal_user_profile;
+
 select * from job_portal_employee_company;
 select * from job_portal_job;
 select * from job_portal_application;
 select * from interview_schedule_application;
 
- -- delete from interview_schedule_application where id = 13;
+-- update job_portal_user_profile set resumeCount = 2 where id = 35;
+
+-- delete from job_portal_user 
+-- delete from job_portal_job 
+delete from job_portal_user where role = 'user';
+
+
 
 exec sp_help job_portal_job
 
