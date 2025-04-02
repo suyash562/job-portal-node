@@ -8,7 +8,7 @@ select * from job_portal_job;
 select * from job_portal_application;
 select * from interview_schedule_application;
 
--- update job_portal_user_profile set resumeCount = 2, primaryResume = 1 where id = 35;
+update job_portal_user_profile set phoneNumber = '8888888888,9999999999' where id = 41;
 
 -- delete from job_portal_user 
 -- delete from job_portal_job 

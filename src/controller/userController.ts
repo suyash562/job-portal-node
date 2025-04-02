@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService } from "../service/userService";
+import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService, updateUserProfileService } from "../service/userService";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
@@ -80,7 +80,6 @@ export const logoutController = async (req : Request, res : Response) => {
 export const getUserProfileController = async (req : Request, res : Response) => {
     try{
         const {user} = req.body;
-        
         const result : RequestResult = await getUserProfileService(user);
         res.status(result.statusCode).send(result);
     }
@@ -158,6 +157,17 @@ export const deleteResumeController = async (req : Request, res : Response) => {
         else{
             res.status(404).send({error : 'Resource not found'});
         }
+    }
+    catch(err){
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const updateUserProfileController = async (req : Request, res : Response) => {
+    try{         
+        const {userProfile, profileId} : {userProfile : Partial<UserProfile>, profileId : number} = req.body;
+        const requestResult : RequestResult = await updateUserProfileService(userProfile, profileId);
+        res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){
         res.status(500).send({error : "Internal Server Error"});

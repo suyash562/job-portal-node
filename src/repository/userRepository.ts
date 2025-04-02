@@ -141,3 +141,20 @@ export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : stri
         return new RequestResult(500, 'Internal Server Error', null);
     }
 } 
+
+export const updateUserProfile = async (userProfile : Partial<UserProfile>, profileId : number) => {
+    try{
+        userProfile.phoneNumber = userProfile.phoneNumber?.toString();
+        const result = await AppDataSource.getRepository(UserProfile)
+        .update({id : profileId}, userProfile);
+
+        console.log(result);
+        
+    
+        return new RequestResult(200, 'success', true);
+    }
+    catch(err : any){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+} 
