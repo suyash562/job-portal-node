@@ -1,7 +1,14 @@
 import { Request, Response } from "express";
 import { User } from "../entities/user";
 import { RequestResult } from "../types/types";
-import { applyForJobService, getApplicantEmailAndPrimaryResumeService, getApplicationByIdService, getApplicationsForEmployeerService, getApplicationsOfCurrentUserService, updateUserApplicationStatusService } from "../service/applicationService";
+import { 
+    applyForJobService, 
+    getApplicantEmailAndPrimaryResumeService, 
+    getApplicationByIdService, 
+    getApplicationsForEmployeerService, 
+    getApplicationsOfCurrentUserService, 
+    updateUserApplicationStatusService 
+} from "../service/applicationService";
 import fs from 'fs';
 
 export const applyForJobController = async (req : Request, res : Response) => {

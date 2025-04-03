@@ -1,5 +1,12 @@
 import { User } from "../entities/user";
-import { applyForJobRepo, getApplicantEmailAndPrimaryResumeRepo, getApplicationByIdRepo, getApplicationsForEmployeerRepo, getApplicationsOfCurrentUserRepo, updateUserApplicationStatusRepo } from "../repository/applicationRepository";
+import { 
+    applyForJobRepo,
+    getApplicantEmailAndPrimaryResumeRepo,
+    getApplicationByIdRepo,
+    getApplicationsForEmployeerRepo,
+    getApplicationsOfCurrentUserRepo,
+    updateUserApplicationStatusRepo 
+} from "../repository/applicationRepository";
 import { RequestResult } from "../types/types";
 
 

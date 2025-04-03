@@ -33,6 +33,7 @@ export const getApplicationByIdRepo = async (applicationId : number) => {
         .createQueryBuilder('application')
         .leftJoinAndSelect("application.user", "user")
         .leftJoinAndSelect("user.profile", "profile")
+        .leftJoinAndSelect("application.job", "job")
         .where("application.id = :id", {id : applicationId})
         .getOne();
 

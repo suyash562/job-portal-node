@@ -20,8 +20,8 @@ exec sp_help job_portal_job
 
 update job_portal_application set status = 'Interview' where id = 11;
 
-update job_portal_job set deadlineForApplying = getDate() where id = 8;
-
+update job_portal_job set deadlineForApplying = '2025-04-01' where id = 16;
+update job_portal_job set isActive = 0 where id = 16;
 
 --update job_portal_job set isActive = 1 where vacancies > 5;
 --truncate table job_portal_user_profile

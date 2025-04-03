@@ -54,9 +54,12 @@ export const getEmployeerPostedJobsRepo = async (user : User) => {
 
 export const getJobByIdRepo = async (jobId : number) => {
     try{
-        const job : Job | null = await AppDataSource.getRepository(Job).findOneBy({
-            id : jobId
-        })
+        const job : Job | null = await AppDataSource.getRepository(Job)
+        .createQueryBuilder("job")
+        .leftJoinAndSelect("job.employeer","user")
+        .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
+        .where("job.id = :jobId", {jobId : jobId})
+        .getOne();
 
         return new RequestResult(job ? 200 : 404, job ? 'Success' : 'Not Found' ,job); 
     }
