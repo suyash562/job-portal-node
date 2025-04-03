@@ -1,18 +1,20 @@
 import { User } from "../entities/user";
+import { RequestResult } from "../types/types";
+import fs from 'fs';
 import { 
     applyForJobRepo,
-    getApplicantEmailAndPrimaryResumeRepo,
     getApplicationByIdRepo,
     getApplicationsForEmployeerRepo,
     getApplicationsOfCurrentUserRepo,
     updateUserApplicationStatusRepo 
 } from "../repository/applicationRepository";
-import { RequestResult } from "../types/types";
 
 
 export const applyForJobService = async (user : User, jobId : number) => {
     try{
-        return await applyForJobRepo(user, jobId);
+        const result = await applyForJobRepo(user, jobId); 
+        fs.copyFileSync(`./public/documents/userResume/${user.email}/${result.value.primaryResume}.pdf`, `./public/documents/applicationResume/${result.value.applicationId}.pdf`);
+        return result;
     }
     catch(err){
         console.log(err);
@@ -43,16 +45,6 @@ export const getApplicationsOfCurrentUserService = async (user : User) => {
 export const getApplicationByIdService = async (applicationId : number) => {
     try{
         return await getApplicationByIdRepo(applicationId);
-    }
-    catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
-    }
-}
-
-export const getApplicantEmailAndPrimaryResumeService = async (applicationId : number) => {
-    try{
-        return await getApplicantEmailAndPrimaryResumeRepo(applicationId);
     }
     catch(err){
         console.log(err);

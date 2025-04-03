@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../entities/user";
 import { RequestResult } from "../types/types";
 import { 
-    applyForJobService, 
-    getApplicantEmailAndPrimaryResumeService, 
+    applyForJobService,  
     getApplicationByIdService, 
     getApplicationsForEmployeerService, 
     getApplicationsOfCurrentUserService, 
@@ -63,15 +62,9 @@ export const getApplicationByIdController = async (req : Request, res : Response
 export const getResumeByApplicationIdController = async (req : Request, res : Response) => {
     try{         
         const applicationId : number = parseInt(req.params['applicationId'] as string);    
-        const result : RequestResult = await getApplicantEmailAndPrimaryResumeService(applicationId);
-        if(result.value){
-            const resumeFile = fs.readFileSync(`./public/documents/${result.value.email}/${result.value.primaryResume}.pdf`); 
-            res.contentType("application/pdf");
-            res.send(resumeFile);
-        }
-        else{
-            res.status(result.statusCode).send({error : result.message});
-        }
+        const resumeFile = fs.readFileSync(`./public/documents/applicationResume/${applicationId}.pdf`); 
+        res.contentType("application/pdf");
+        res.send(resumeFile);
     }
     catch(err){
         console.log(err);

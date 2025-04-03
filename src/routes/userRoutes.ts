@@ -8,7 +8,7 @@ import fs from 'fs';
 
 function getResumesCount(email : string) : string {
   let fileName : string = '1';
-  let path : string = `./public/documents/${email}`;
+  let path : string = `./public/documents/userResume/${email}`;
 
   try{
     if(fs.existsSync(path)){
@@ -29,7 +29,7 @@ function getResumesCount(email : string) : string {
 const multerUpload = multer({ 
     storage : multer.diskStorage({
       destination: function (req, file, cb) {
-        cb(null, `./public/documents/${req.body.email}`)
+        cb(null, `./public/documents/userResume/${req.body.email}`)
       },
       filename: function (req, file, cb) {
         cb(null, getResumesCount(req.body.email) + path.extname(file.originalname))

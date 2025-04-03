@@ -10,18 +10,18 @@ import { getTotalNumberOfJobsService } from "../service/jobService";
 
 function renameFiles(email : string, deletedResumeNumber : number){
     try{
-        const files = fs.readdirSync(`./public/documents/${email}`);
+        const files = fs.readdirSync(`./public/documents/userResume/${email}`);
         if(files.length === 0){
             return;
         }
         else if(deletedResumeNumber === 2 && files.length === 2){
-            fs.renameSync(`./public/documents/${email}/3.pdf`,`./public/documents/${email}/2.pdf`)
+            fs.renameSync(`./public/documents/userResume/${email}/3.pdf`,`./public/documents/userResume/${email}/2.pdf`)
         }
         else if(deletedResumeNumber === 1 && files.length === 2){
-            fs.renameSync(`./public/documents/${email}/3.pdf`,`./public/documents/${email}/1.pdf`)
+            fs.renameSync(`./public/documents/userResume/${email}/3.pdf`,`./public/documents/userResume/${email}/1.pdf`)
         }
         else if(deletedResumeNumber === 1){
-            fs.renameSync(`./public/documents/${email}/2.pdf`,`./public/documents/${email}/1.pdf`)
+            fs.renameSync(`./public/documents/userResume/${email}/2.pdf`,`./public/documents/userResume/${email}/1.pdf`)
         }
     }
     catch(err){
@@ -105,7 +105,7 @@ export const getResumeByIdController = async (req : Request, res : Response) => 
     try{         
         const {user} : {user : User} = req.body;    
         const resumeNumber : number = parseInt(req.params['resumeNumber']);    
-        const resumeFile = fs.readFileSync(`./public/documents/${user.email}/${resumeNumber}.pdf`);     
+        const resumeFile = fs.readFileSync(`./public/documents/userResume/${user.email}/${resumeNumber}.pdf`);     
         res.contentType("application/pdf");
         res.send(resumeFile);
     }
@@ -141,7 +141,7 @@ export const updatePrimaryResumeController = async (req : Request, res : Respons
 export const deleteResumeController = async (req : Request, res : Response) => {
     try{         
         const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;
-        const filePath = `./public/documents/${user.email}/${resumeNumber}.pdf`;
+        const filePath = `./public/documents/userResume/${user.email}/${resumeNumber}.pdf`;
 
         if(fs.existsSync(filePath)){
             const decreaseResumeCountResult = await decreaseResumeCountAndUpdatePrimaryResumeService(user.email);

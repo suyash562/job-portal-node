@@ -7,17 +7,17 @@ import { RequestResult } from "../types/types";
 
 export const applyForJobRepo = async (user : User, jobId : number) => {
     try{
-        const existingUser = await AppDataSource.getRepository(User).findOneBy({
-            email : user.email
-        })
+        const existingUser = await AppDataSource.getRepository(User).findOne(
+            {where : {email : user.email}, relations : ['profile']},
+        )
         const existingJob = await AppDataSource.getRepository(Job).findOneBy({
             id : jobId
         })
         
         if(existingUser && existingJob){
             const newApplication : Application = new Application(new Date(),'Pending', existingUser, existingJob, true);
-            await AppDataSource.getRepository(Application).save(newApplication);
-            return new RequestResult(200, 'success', true);
+            const savedApplication : Application = await AppDataSource.getRepository(Application).save(newApplication);
+            return new RequestResult(200, 'success', {applicationId : savedApplication.id, primaryResume : existingUser.profile.primaryResume});
         }
         return new RequestResult(404, 'Resource Not Found', null);
     }
@@ -41,26 +41,6 @@ export const getApplicationByIdRepo = async (applicationId : number) => {
             return new RequestResult(200, 'Success', application);
         }
         
-        return new RequestResult(404, 'Resource not found', null);
-    }
-    catch(err){
-        console.log(err);
-        return new RequestResult(500, 'Internal Server Error', null);
-    }
-}
-
-export const getApplicantEmailAndPrimaryResumeRepo = async (applicationId : number) => {
-    try{
-        const application = await AppDataSource.getRepository(Application)
-        .createQueryBuilder("application")
-        .leftJoinAndSelect("application.user","user")
-        .leftJoinAndSelect("user.profile","profile")
-        .where("application.id = :id", {id : applicationId})
-        .getOne();
-
-        if(application){
-            return new RequestResult(200, 'success', {email : application?.user.email, primaryResume : application.user.profile.primaryResume});
-        }
         return new RequestResult(404, 'Resource not found', null);
     }
     catch(err){
