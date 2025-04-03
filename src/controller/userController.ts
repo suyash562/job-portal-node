@@ -5,6 +5,7 @@ import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
 import { GlobalError, RequestResult } from "../types/types";
 import fs from 'fs';
+import { getTotalNumberOfJobsService } from "../service/jobService";
 
 
 function renameFiles(email : string, deletedResumeNumber : number){
@@ -186,6 +187,16 @@ export const updateUserPasswordController = async (req : Request, res : Response
         } = req.body;
 
         const requestResult : RequestResult = await updateUserPasswordService(user.email, currentPassword, newPassword);
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const getTotalNumberOfJobsController = async (req : Request, res : Response) => {
+    try{         
+        const requestResult : RequestResult = await getTotalNumberOfJobsService();
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){

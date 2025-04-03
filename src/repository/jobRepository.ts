@@ -112,3 +112,19 @@ export const deleteJobRepo = async (jobId : number) => {
         return new RequestResult(500,'Internal Server Error',null);
     }
 }
+
+export const getTotalNumberOfJobsRepo = async () => {
+    try{
+        const jobs : Job[] = await AppDataSource.getRepository(Job)
+        .createQueryBuilder("job")
+        .where("job.deadlineForApplying > :currentDate", {currentDate : new Date()})
+        .andWhere("job.isActive = :jobId", {jobId : 1})
+        .getMany();
+
+        return new RequestResult(200,'Success',jobs.length); 
+    }
+    catch(err){
+        console.log(err);
+        return new RequestResult(500,'Internal Server Error',null);
+    }
+}
