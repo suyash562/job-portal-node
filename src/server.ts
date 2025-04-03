@@ -7,12 +7,14 @@ import cookieParser from 'cookie-parser';
 import jobRouter from "./routes/jobRoutes";
 import applicationRouter from "./routes/applicationRoutes";
 import interviewScheduleRouter from "./routes/interviewScheduleRouter";
+import { globalErrorHandler } from "./middleware/globalErrorHandler";
 
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -25,6 +27,8 @@ app.use('/user',userRouter);
 app.use('/job',jobRouter);
 app.use('/application',applicationRouter);
 app.use('/interview',interviewScheduleRouter);
+
+app.use(globalErrorHandler);
 
 AppDataSource.initialize().then(()=>{
     app.listen(PORT, ()=>{

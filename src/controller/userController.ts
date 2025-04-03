@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
-import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService, updateUserProfileService } from "../service/userService";
+import { NextFunction, Request, Response } from "express";
+import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService, updateUserPasswordService, updateUserProfileService } from "../service/userService";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
-import { RequestResult } from "../types/types";
+import { GlobalError, RequestResult } from "../types/types";
 import fs from 'fs';
 
 
@@ -77,15 +77,14 @@ export const logoutController = async (req : Request, res : Response) => {
     }
 }
 
-export const getUserProfileController = async (req : Request, res : Response) => {
+export const getUserProfileController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const {user} = req.body;
         const result : RequestResult = await getUserProfileService(user);
         res.status(result.statusCode).send(result);
     }
     catch(err){
-        console.log(err);
-        res.status(500).send({error : "Internal Server Error"});
+        next(err);
     }
 }
 
@@ -167,6 +166,26 @@ export const updateUserProfileController = async (req : Request, res : Response)
     try{         
         const {userProfile, profileId} : {userProfile : Partial<UserProfile>, profileId : number} = req.body;
         const requestResult : RequestResult = await updateUserProfileService(userProfile, profileId);
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        res.status(500).send({error : "Internal Server Error"});
+    }
+}
+
+export const updateUserPasswordController = async (req : Request, res : Response) => {
+    try{         
+        const {
+            user,
+            currentPassword,
+            newPassword
+        } : {
+            user : User,
+            currentPassword : string,
+            newPassword : string
+        } = req.body;
+
+        const requestResult : RequestResult = await updateUserPasswordService(user.email, currentPassword, newPassword);
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){

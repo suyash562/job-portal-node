@@ -15,3 +15,13 @@ export class RequestResult{
         this.value = value
     }
 }
+
+
+export class GlobalError extends Error{
+    statusCode : number;
+    
+    constructor(statusCode : number, message : string){
+        super(message);
+        this.statusCode = statusCode;
+    }
+}

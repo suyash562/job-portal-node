@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/database"
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
-import { RequestResult } from "../types/types";
+import { GlobalError, RequestResult } from "../types/types";
 
 export const registerRepo = async (user : User) => {
     try{        
@@ -45,11 +45,10 @@ export const getUserProfile = async (user : Partial<User>) => {
         if(result){
             return new RequestResult(200, 'success', result);
         }
-        return  new RequestResult(201, 'User Profile Not Found', null);
+        throw new GlobalError(404, 'Profile not found');
     }
     catch(err : any){
-        console.log(err.code);
-        return new RequestResult(500, 'Internal Server Error', null);
+        throw err;
     }
 } 
 
@@ -145,13 +144,37 @@ export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : stri
 export const updateUserProfile = async (userProfile : Partial<UserProfile>, profileId : number) => {
     try{
         userProfile.phoneNumber = userProfile.phoneNumber?.toString();
+
         const result = await AppDataSource.getRepository(UserProfile)
         .update({id : profileId}, userProfile);
-
-        console.log(result);
         
     
-        return new RequestResult(200, 'success', true);
+        return new RequestResult(200, 'success', userProfile);
+    }
+    catch(err : any){
+        console.log(err);
+        return new RequestResult(500, 'Internal Server Error', null);
+    }
+} 
+
+export const updateUserPassword = async (email : string, currentPassword : string, newPassword : string) => {
+    try{
+        
+        const result = await AppDataSource.getRepository(User)
+        .update(
+            {
+                email : email,
+                password : currentPassword
+            },
+            {
+                password : newPassword
+            }
+        )
+        
+        if(result.affected != 0){   
+            return new RequestResult(200, 'success', true);
+        }
+        return new RequestResult(401, 'Incorrect password', false);
     }
     catch(err : any){
         console.log(err);

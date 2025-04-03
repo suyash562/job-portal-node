@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteResumeController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, updatePrimaryResumeController, updateUserProfileController, uploadResumeController } from "../controller/userController";
+import { deleteResumeController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -57,5 +57,6 @@ userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, getResumeBy
 userRouter.post('/resume/upload', authenticateUserCredentials, multerUpload.single('resume'), uploadResumeController);
 userRouter.post('/resume/updatePrimary', authenticateUserCredentials, updatePrimaryResumeController);
 userRouter.post('/resume/delete', authenticateUserCredentials, deleteResumeController);
+userRouter.post('/password/update', authenticateUserCredentials, updateUserPasswordController);
 
 export default userRouter;
