@@ -1,5 +1,5 @@
 import { User } from "../entities/user";
-import { RequestResult } from "../types/types";
+import { GlobalError, RequestResult } from "../types/types";
 import fs from 'fs';
 import { 
     applyForJobRepo,
@@ -17,47 +17,22 @@ export const applyForJobService = async (user : User, jobId : number) => {
         return result;
     }
     catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
+        throw new GlobalError(404, 'Failed to apply for job');
     }
 }
 
 export const getApplicationsForEmployeerService = async (user : User) => {
-    try{
-        return await getApplicationsForEmployeerRepo(user);
-    }
-    catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
-    }
+    return await getApplicationsForEmployeerRepo(user);
 }
 
 export const getApplicationsOfCurrentUserService = async (user : User) => {
-    try{
-        return await getApplicationsOfCurrentUserRepo(user);
-    }
-    catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
-    }
+    return await getApplicationsOfCurrentUserRepo(user);
 }
 
 export const getApplicationByIdService = async (applicationId : number) => {
-    try{
-        return await getApplicationByIdRepo(applicationId);
-    }
-    catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
-    }
+    return await getApplicationByIdRepo(applicationId);
 }
 
 export const updateUserApplicationStatusService = async (applicationId : number, status : string) => {
-    try{
-        return await updateUserApplicationStatusRepo(applicationId, status);
-    }
-    catch(err){
-        console.log(err);
-        return  new RequestResult(500,'Internal Server Error',null);
-    }
+    return await updateUserApplicationStatusRepo(applicationId, status);
 }
