@@ -39,13 +39,13 @@ export class Job{
     @Column({type : "int"})
     experienceLevel : string;
     
-    @Column({type : "datetime"})
+    @Column({type : "date"})
     deadlineForApplying : Date;
     
     @Column({type : "varchar"})
     workLocation : string;
 
-    @Column({type : "datetime"})
+    @Column({type : "date"})
     postingDate : Date;
 
     @Column({type : "bit"})

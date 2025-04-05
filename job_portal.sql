@@ -11,10 +11,12 @@ select * from interview_schedule_application;
 update job_portal_user_profile set primaryResume = 0 where id = 39;
 
 -- delete from job_portal_user 
--- delete from job_portal_job 
+ delete from job_portal_job 
+ delete from job_portal_application;
+-- delete from interview_schedule_application;
 delete from job_portal_user where role = 'user';
 
-
+select * from job_portal_job where deadlineForApplying > '2025-04-05';
 
 exec sp_help job_portal_job
 

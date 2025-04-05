@@ -62,7 +62,7 @@ export const getResumeByApplicationIdController = async (req : Request, res : Re
         res.contentType("application/pdf");
         res.send(resumeFile);
     }
-    catch(err){        
+    catch(err){   
         next(err);
     }
 }

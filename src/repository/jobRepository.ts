@@ -55,16 +55,17 @@ export const getJobByIdRepo = async (jobId : number) => {
 }
 
 export const getAllJobsRepo = async (page : number, limit : number) => {
+
     const jobs : Job[] = await AppDataSource.getRepository(Job)
         .createQueryBuilder("job")
         .leftJoinAndSelect("job.employeer","user")
         .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
-        .where("job.deadlineForApplying > :currentDate", {currentDate : new Date()})
+        .where("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
         .andWhere("job.isActive = :jobId", {jobId : 1})
         .skip((page - 1)*limit)
         .take(limit)
-        .getMany();
-
+        .getMany();        
+    
     return new RequestResult(200,'Success',jobs); 
 }
 
@@ -94,9 +95,10 @@ export const getTotalNumberOfJobsRepo = async () => {
     
     const jobs : Job[] = await AppDataSource.getRepository(Job)
         .createQueryBuilder("job")
-        .where("job.deadlineForApplying > :currentDate", {currentDate : new Date()})
+        .where("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
         .andWhere("job.isActive = :jobId", {jobId : 1})
         .getMany();
+    
 
     return new RequestResult(200,'Success',jobs.length); 
 }
