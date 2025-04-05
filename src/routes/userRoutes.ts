@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteResumeController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController } from "../controller/userController";
+import { deleteResumeController, deleteUserIfNotVerifiedController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -58,5 +58,8 @@ userRouter.post('/resume/upload', authenticateUserCredentials, multerUpload.sing
 userRouter.post('/resume/updatePrimary', authenticateUserCredentials, updatePrimaryResumeController);
 userRouter.post('/resume/delete', authenticateUserCredentials, deleteResumeController);
 userRouter.post('/password/update', authenticateUserCredentials, updateUserPasswordController);
+userRouter.post('/verify-otp', verifyOtpController);
+userRouter.post('/resend-otp', resendOtpController);
+userRouter.post('/delete/not-verified', deleteUserIfNotVerifiedController);
 
 export default userRouter;

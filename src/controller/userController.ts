@@ -1,5 +1,20 @@
 import { NextFunction, Request, Response } from "express";
-import { decreaseResumeCountAndUpdatePrimaryResumeService, getUserProfileService, getUserRoleService, loginService, registerService, updatePrimaryResumeService, updateResumeCountService, updateUserPasswordService, updateUserProfileService } from "../service/userService";
+import { 
+    decreaseResumeCountAndUpdatePrimaryResumeService, 
+    deleteNotVerifiedUserService, 
+    getUserProfileService, 
+    getUserRoleService, 
+    loginService, 
+    markUserAsVerifiedService, 
+    registerService, 
+    removeSentOtpFromMap, 
+    sendOtpMail, 
+    updatePrimaryResumeService, 
+    updateResumeCountService,
+    updateUserPasswordService, 
+    updateUserProfileService,  
+    verifyOtpService 
+} from "../service/userService";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
 import jwt from 'jsonwebtoken';
@@ -29,7 +44,49 @@ export const registerController = async (req : Request, res : Response, next : N
     try{
         const user : User & UserProfile = req.body;       
         const result : RequestResult = await registerService(user);
+        await sendOtpMail(user.email);
+        
         res.status(result.statusCode).send(result); 
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+export const verifyOtpController = async (req : Request, res : Response, next : NextFunction) => {
+    try{     
+        const {email, otp} = req.body;
+        if(verifyOtpService(email, otp)){
+            await markUserAsVerifiedService(email);
+            removeSentOtpFromMap(email);
+            res.status(200).send(true); 
+        }
+        else{
+            throw new GlobalError(401, 'Incorrect OTP');
+        }
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+export const resendOtpController = async (req : Request, res : Response, next : NextFunction) => {
+    try{     
+        const {email} = req.body;
+        await sendOtpMail(email);
+        res.status(200).send({message : 'OTP resent'});
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
+    try{     
+        const {email} = req.body;
+        await deleteNotVerifiedUserService(email);
+        removeSentOtpFromMap(email);
+        res.status(200).send(true);
     }
     catch(err){
         next(err);
@@ -48,7 +105,6 @@ export const loginController = async function(req : Request, res : Response, nex
         next(err);
     }
 }
-
 
 export const logoutController = async (req : Request, res : Response, next : NextFunction) => {
     try{
@@ -132,7 +188,7 @@ export const deleteResumeController = async (req : Request, res : Response, next
             res.status(requestResult.statusCode).send(requestResult);
         }
         else{
-            res.status(404).send({error : 'Resource not found'});
+            throw new GlobalError(404, 'Resource not found');
         }
     }
     catch(err){

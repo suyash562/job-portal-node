@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/database"
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
+import { comparePasswordWithHash, generatePasswordHash } from "../service/userService";
 import { GlobalError, RequestResult } from "../types/types";
 
 const userProfileRepository = AppDataSource.getRepository(UserProfile);
@@ -8,25 +9,64 @@ const userRepository = AppDataSource.getRepository(User);
 
 
 export const registerRepo = async (user : User) => {   
+    const alreadyExists = await userRepository.findOneBy(
+        {
+            email : user.email,
+        }
+    );
 
-    await userRepository.save(user);
-    return new RequestResult(200, 'success', true);
-
+    if(!alreadyExists){
+        user.password = await generatePasswordHash(user.password);
+        await userRepository.save(user);
+        return new RequestResult(200, 'success', true);
+    }
+    throw new GlobalError(403, 'Email already exists. Try again with another email');
 }
 
 
 export const vefiryUserCredentials = async (user : Partial<User>) => {
 
     const result = await userRepository.findOneBy({
-        email : user.email,
-        password : user.password
+        email : user.email
     });
     
-    if(result){
+    if(result && await comparePasswordWithHash(user.password!, result.password)){
         return new RequestResult(200, 'Logged In', result);
     }        
     throw new GlobalError(401, 'Incorrect email or password');
 
+} 
+
+export const markUserAsVerified = async (email : string) => {
+
+    const result = await userRepository.update(
+        {
+            email : email
+        },
+        {
+            isVerified : () => '1'
+        }
+    );
+    
+    if(result.affected != 0){
+        return new RequestResult(200, 'success', true);
+    }        
+    throw new GlobalError(401, 'Failed to update user verification status');
+
+} 
+
+export const deleteNotVerifiedUser = async (email : string) => {
+
+    const result = await userRepository.delete(
+        {
+            email : email
+        }
+    );
+    
+    if(result.affected != 0){
+        return new RequestResult(200, 'success', true);
+    }        
+    throw new Error();
 } 
 
 
@@ -38,7 +78,7 @@ export const getUserProfile = async (user : Partial<User>) => {
         .where({
             user : user.email
         })
-        .getOne();
+        .getOne();        
     
     if(result){
         return new RequestResult(200, 'success', result);

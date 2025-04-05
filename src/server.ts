@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from 'cors';
 import { AppDataSource } from "./config/database";
@@ -10,11 +11,9 @@ import interviewScheduleRouter from "./routes/interviewScheduleRouter";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 
 app.use(express.json());
 app.use(cookieParser());

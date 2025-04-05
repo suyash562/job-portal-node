@@ -8,10 +8,10 @@ import { InterviewSchedule } from "../entities/interviewSchedule";
 
 export const AppDataSource = new DataSource({
     type : 'mssql',
-    host : 'dev.c5owyuw64shd.ap-south-1.rds.amazonaws.com',
-    port : 1982,
-    username : 'j2',
-    password : '123456',
+    host : process.env.DATABASE_HOST,
+    port : parseInt(process.env.DATABASE_PORT!),
+    username : process.env.DATABASE_USERNAME,
+    password : process.env.DATABASE_PASS,
     database : 'JIBE_Main_Training',
     entities : [User, UserProfile, Job, EmployeerCompany, Application, InterviewSchedule],
     synchronize : true,

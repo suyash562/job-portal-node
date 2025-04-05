@@ -14,6 +14,9 @@ export class User{
 
     @Column({type : "varchar", length : 10})
     role  : 'user' | 'employeer' | 'admin';
+    
+    @Column({type : "bit"})
+    isVerified  : boolean;
 
     @OneToOne(()=>UserProfile, (userProfile) => userProfile.user, {cascade : true})
     profile! : UserProfile;
@@ -30,10 +33,12 @@ export class User{
     constructor(
         email : string,
         password : string,
-        role : 'user' | 'employeer' | 'admin'
+        role : 'user' | 'employeer' | 'admin',
+        isVerified : boolean
     ){
         this.email = email;
         this.password = password;
         this.role = role;
+        this.isVerified = isVerified
     }
 }

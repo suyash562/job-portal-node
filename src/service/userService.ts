@@ -1,16 +1,22 @@
+import { MailOptions } from "nodemailer/lib/json-transport";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { decreaseResumeCountAndUpdatePrimaryResume, getUserProfile, getUserRole, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
-import { GlobalError } from "../types/types";
+import { decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, getUserProfile, getUserRole, markUserAsVerified, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
+import bcrypt from 'bcrypt';
+import { transporter } from "../config/mail";
+import { otpMailTemplate } from "../templates/mailTemplates";
 
+const sentOtpMap : Map<string, string> = new Map();
+let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
 
 export const registerService = async (user : any) => {
     
     const newUser = new User(
         user.email,
         user.password,
-        user.role
+        user.role,
+        false
     );
     const newUserProfile = new UserProfile(
         user.firstName,
@@ -35,6 +41,62 @@ export const registerService = async (user : any) => {
     
     return await registerRepo(newUser);
     
+}
+
+
+export const sendOtpMail = async (email : string) => {
+
+    const otp : string = Math.random().toString().split('.')[1].slice(0,6);
+    
+    const mailOptions : MailOptions = {
+        from: `SnapHire ${process.env.GMAIL_USER}`,
+        to: email,
+        subject: "OTP for Snap Hire",
+        html : otpMailTemplate(otp),
+    };
+    await transporter.sendMail(mailOptions); 
+    sentOtpMap.set(email, otp);
+    setTimeoutForDeletingNotVerifiedUsers(email);
+
+    return true; 
+}
+
+export const verifyOtpService = (email : string, otp : string) => {
+    if(sentOtpMap.get(email) === otp){
+        clearTimeout(deleteNotVerifiedUserTimeout);
+        return true;
+    }
+    return false;
+}
+
+export const removeSentOtpFromMap = (email : string) => {
+    sentOtpMap.delete(email);
+}
+
+export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
+    clearTimeout(deleteNotVerifiedUserTimeout);
+    deleteNotVerifiedUserTimeout = setTimeout(async () => {
+        if(sentOtpMap.has(email)){
+            await deleteNotVerifiedUserService(email);
+            removeSentOtpFromMap(email);
+        }
+    }, 1000 * 60 * 5);
+}
+
+export const markUserAsVerifiedService = async (email : string) => {
+    return await markUserAsVerified(email);
+}
+
+export const deleteNotVerifiedUserService = async (email : string) => {
+    return await deleteNotVerifiedUser(email);
+}
+
+export const generatePasswordHash = async (plainPassword : string) => {
+    return await bcrypt.hash(plainPassword, 10);
+}
+
+export const comparePasswordWithHash = async (plainPassword : string, hashPassword : string) => {
+    return await bcrypt.compare(plainPassword, hashPassword);
 }
 
 export const loginService = async (user : Partial<User>) => {
