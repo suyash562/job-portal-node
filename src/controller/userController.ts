@@ -96,12 +96,15 @@ export const getResumeByIdController = async (req : Request, res : Response, nex
 }
 
 export const uploadResumeController = async (req : Request, res : Response, next : NextFunction) => {
+    const user : User = req.body;
     try{         
-        const user : User = req.body;
         const requestResult : RequestResult = await updateResumeCountService(user.email, 1);
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){
+        const files = fs.readdirSync(`./public/documents/userResume/${user.email}`);
+        const fileName = (files.length).toString();
+        fs.unlinkSync(`./public/documents/userResume/${user.email}/${fileName}.pdf`);
         next(err);
     }
 }

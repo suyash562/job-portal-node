@@ -32,3 +32,9 @@ update job_portal_job set isActive = 0 where id = 16;
 
 --insert into job_portal_user values('admin@gmail.com', 'Admin@123', 'admin');
 insert into job_portal_user_profile values('first', 'last', 'Admin Address', '', 'admin@gmail.com', '9999999999');
+
+
+
+update job_portal_application 
+set isActive = 1
+where id = 19;
