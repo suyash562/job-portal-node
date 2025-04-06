@@ -76,15 +76,38 @@ export const getApplicationsOfCurrentUserRepo = async (user : User) => {
 
 
 export const updateUserApplicationStatusRepo = async (applicationId : number, status : string) => {
-    const updateResult : UpdateResult = await applicationRepository
-        .createQueryBuilder("application")
-        .update({status : (status as 'Accepted' | 'Rejected')})
-        .where({id : applicationId})
-        .execute();
-    
-    if(updateResult.affected != 0 ){
-        return new RequestResult(200, 'Application status updated', true);
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try{
+        const updateResult : UpdateResult = await queryRunner.manager
+            .getRepository(Application)
+            .createQueryBuilder("application")
+            .update({status : (status as 'Accepted' | 'Rejected')})
+            .where({id : applicationId})
+            .execute();
+        
+        const application : Application | null = await queryRunner.manager
+            .getRepository(Application)
+            .createQueryBuilder('application')
+            .leftJoinAndSelect("application.job", "job")
+            .leftJoinAndSelect("application.user", "user")
+            .where("application.id = :applicationId", {applicationId : applicationId})
+            .getOne(); 
+        
+        if(updateResult.affected != 0 && application){
+            // console.log(application.applyDate.to);
+            
+            await queryRunner.commitTransaction();
+            return new RequestResult(200, 'Application status updated', application);
+        }
+        throw new GlobalError(404, 'Failed to update application status');
     }
-    throw new GlobalError(404, 'Failed to update application status');
-
+    catch(err){
+        await queryRunner.rollbackTransaction();
+        throw(err);
+    }
+    finally{
+        !queryRunner.isReleased ? await queryRunner.release() : null;
+    }
 }

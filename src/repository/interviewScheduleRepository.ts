@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/database"
 import { Application } from "../entities/application";
 import { InterviewSchedule } from "../entities/interviewSchedule";
+import { Job } from "../entities/job";
 import { GlobalError, RequestResult } from "../types/types";
 import { updateUserApplicationStatusRepo } from "./applicationRepository";
 
@@ -11,9 +12,14 @@ const interviewScheduleRepository = AppDataSource.getRepository(InterviewSchedul
 
 export const addInterviewScheduleRepo = async (applicationId : number, interviewSchedule : InterviewSchedule) => {
         
-    let application : Application | null = await applicationRepository.findOneBy({
-        id : applicationId,
-    });
+    let application : Application | null = await applicationRepository.findOne(
+        {
+            where : {
+                id : applicationId,
+            },
+            relations : ['job', 'user']
+        }
+    );
 
     if(application){
         const newInterviewSchedule = new InterviewSchedule(
@@ -29,7 +35,7 @@ export const addInterviewScheduleRepo = async (applicationId : number, interview
         
         newInterviewSchedule.userApplication = application;
         await AppDataSource.getRepository(InterviewSchedule).save(newInterviewSchedule);
-        return new RequestResult(200, 'Interview scheduled successfully', true);
+        return new RequestResult(200, 'Interview scheduled successfully', {application : application});
     }
     throw new GlobalError(404, 'Failed to add schedule');
 

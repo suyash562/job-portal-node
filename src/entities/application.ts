@@ -8,7 +8,7 @@ export class Application{
     @PrimaryGeneratedColumn()
     id! : number;
 
-    @Column({type : "datetime"})
+    @Column({type : "date"})
     applyDate : Date;
 
     @Column({type : "varchar", length : 10})

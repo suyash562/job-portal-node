@@ -132,7 +132,7 @@ export const updateResumeCount = async (userEmail : string, count : number) => {
         if(updateResumeCount.affected === 0){
             throw new GlobalError(404, 'Failed to upload resume');
         }
-        queryRunner.commitTransaction();
+        await queryRunner.commitTransaction();
         return new RequestResult(200, 'Resume uploaded', true);
     }
     catch(err){
@@ -180,7 +180,7 @@ export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : stri
             .andWhere("primaryResume > resumeCount")
             .execute();
 
-        queryRunner.commitTransaction();
+        await queryRunner.commitTransaction();
         return new RequestResult(200, 'Resume deleted', true);
     }
     catch(err){

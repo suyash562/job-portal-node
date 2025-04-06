@@ -5,7 +5,8 @@ import { UserProfile } from "../entities/userProfile";
 import { decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, getUserProfile, getUserRole, markUserAsVerified, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
-import { otpMailTemplate } from "../templates/mailTemplates";
+import { applicationStatusUpdatedMailTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
+import { RequestResult } from "../types/types";
 
 const sentOtpMap : Map<string, string> = new Map();
 let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
@@ -39,8 +40,9 @@ export const registerService = async (user : any) => {
     newUser.profile = newUserProfile;
     if(newEmployeerCompany) newUser.employeerCompany = newEmployeerCompany;
     
-    return await registerRepo(newUser);
-    
+    const registrationResult : RequestResult = await registerRepo(newUser);
+    // await sendOtpMail(user.email);
+    return registrationResult;
 }
 
 
@@ -61,9 +63,35 @@ export const sendOtpMail = async (email : string) => {
     return true; 
 }
 
-export const verifyOtpService = (email : string, otp : string) => {
+export const sendApplicationStatusResolvedMail = async (email : string, applicationId : string ,jobPost : string, appliedDate : string, applicationStatus : string) => {
+
+    const mailOptions : MailOptions = {
+        from: `SnapHire ${process.env.GMAIL_USER}`,
+        to: email,
+        subject: "Application accepted",
+        html : applicationStatusUpdatedMailTemplate(applicationId, jobPost, appliedDate, applicationStatus),
+    };
+    await transporter.sendMail(mailOptions); 
+    return true; 
+}
+
+export const sendInterviewScheduledMail = async (email : string, jobPost : string, applicationId : string, scheduleDate : string, scheduleTime : string) => {
+
+    const mailOptions : MailOptions = {
+        from: `SnapHire ${process.env.GMAIL_USER}`,
+        to: email,
+        subject: "Interview scheduled",
+        html : interviewScheduledMailTemplate(jobPost, applicationId, scheduleDate, scheduleTime),
+    };
+    await transporter.sendMail(mailOptions); 
+    return true; 
+}
+
+export const verifyOtpService = async (email : string, otp : string) => {
     if(sentOtpMap.get(email) === otp){
         clearTimeout(deleteNotVerifiedUserTimeout);
+        await markUserAsVerifiedService(email);
+        removeSentOtpFromMap(email);
         return true;
     }
     return false;

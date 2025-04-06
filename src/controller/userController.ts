@@ -4,8 +4,7 @@ import {
     deleteNotVerifiedUserService, 
     getUserProfileService, 
     getUserRoleService, 
-    loginService, 
-    markUserAsVerifiedService, 
+    loginService,  
     registerService, 
     removeSentOtpFromMap, 
     sendOtpMail, 
@@ -43,9 +42,7 @@ function renameFiles(email : string, deletedResumeNumber : number){
 export const registerController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const user : User & UserProfile = req.body;       
-        const result : RequestResult = await registerService(user);
-        await sendOtpMail(user.email);
-        
+        const result : RequestResult = await registerService(user);        
         res.status(result.statusCode).send(result); 
     }
     catch(err){
@@ -56,9 +53,7 @@ export const registerController = async (req : Request, res : Response, next : N
 export const verifyOtpController = async (req : Request, res : Response, next : NextFunction) => {
     try{     
         const {email, otp} = req.body;
-        if(verifyOtpService(email, otp)){
-            await markUserAsVerifiedService(email);
-            removeSentOtpFromMap(email);
+        if(await verifyOtpService(email, otp)){ 
             res.status(200).send(true); 
         }
         else{

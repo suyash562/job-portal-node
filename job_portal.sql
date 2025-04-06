@@ -20,7 +20,7 @@ select * from job_portal_job where deadlineForApplying > '2025-04-05';
 
 exec sp_help job_portal_job
 
-update job_portal_application set status = 'Interview' where id = 11;
+update job_portal_application set status = 'Pending' where id = 21;
 
 update job_portal_job set deadlineForApplying = '2025-04-01' where id = 16;
 update job_portal_job set isActive = 0 where id = 16;

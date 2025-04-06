@@ -9,7 +9,7 @@ export class InterviewSchedule{
     @Column({type : "varchar", length : 10})
     interviewType : string;
    
-    @Column({type : "datetime"})
+    @Column({type : "date"})
     interviewDate : Date;
 
     @Column({type : "time"})

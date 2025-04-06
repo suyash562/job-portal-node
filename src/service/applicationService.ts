@@ -8,6 +8,8 @@ import {
     getApplicationsOfCurrentUserRepo,
     updateUserApplicationStatusRepo 
 } from "../repository/applicationRepository";
+import { sendApplicationStatusResolvedMail } from "./userService";
+import { Application } from "../entities/application";
 
 
 export const applyForJobService = async (user : User, jobId : number) => {
@@ -34,5 +36,8 @@ export const getApplicationByIdService = async (applicationId : number) => {
 }
 
 export const updateUserApplicationStatusService = async (applicationId : number, status : string) => {
-    return await updateUserApplicationStatusRepo(applicationId, status);
+    const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, status);
+    const application : Application = requestResult.value;
+    await sendApplicationStatusResolvedMail(application.user.email, application.id.toString(), application.job.title, application.applyDate.toString().split('T')[0], application.status);
+    return requestResult;
 }
