@@ -4,6 +4,7 @@ import { Application } from "../entities/application";
 import { Job } from "../entities/job";
 import { User } from "../entities/user"
 import { GlobalError, RequestResult } from "../types/types";
+import { Notification } from "../entities/notification";
 
 
 const userRepository = AppDataSource.getRepository(User);
@@ -75,7 +76,7 @@ export const getApplicationsOfCurrentUserRepo = async (user : User) => {
 }
 
 
-export const updateUserApplicationStatusRepo = async (applicationId : number, status : string) => {
+export const updateUserApplicationStatusRepo = async (applicationId : number, status : string, notificationMessage : string, actionUrl : string) => {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -95,13 +96,15 @@ export const updateUserApplicationStatusRepo = async (applicationId : number, st
             .where("application.id = :applicationId", {applicationId : applicationId})
             .getOne(); 
         
-        if(updateResult.affected != 0 && application){
-            // console.log(application.applyDate.to);
-            
-            await queryRunner.commitTransaction();
-            return new RequestResult(200, 'Application status updated', application);
+        if( updateResult.affected == 0 || !application){
+            throw new GlobalError(404, "Failed to update application status");
         }
-        throw new GlobalError(404, 'Failed to update application status');
+        
+        const newNotification : Notification = new Notification(notificationMessage, actionUrl, application.user, false);
+        await queryRunner.manager.getRepository(Notification).save(newNotification);
+
+        await queryRunner.commitTransaction();
+        return new RequestResult(200, 'Application status updated', application);
     }
     catch(err){
         await queryRunner.rollbackTransaction();

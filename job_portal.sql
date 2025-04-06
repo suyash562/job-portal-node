@@ -6,6 +6,7 @@ select * from job_portal_user_profile;
 select * from job_portal_employee_company;
 select * from job_portal_job;
 select * from job_portal_application;
+select * from job_portal_notification;
 select * from interview_schedule_application;
 
 -- update job_portal_user_profile set primaryResume = 0, resumeCount = 0 where id = 35;
@@ -13,17 +14,20 @@ select * from interview_schedule_application;
  delete from job_portal_user 
  delete from job_portal_job 
  delete from job_portal_application;
--- delete from interview_schedule_application;
+delete from interview_schedule_application;
+delete from job_portal_notification;
 delete from job_portal_user where role = 'employeer';
 
 select * from job_portal_job where deadlineForApplying > '2025-04-05';
 
 exec sp_help job_portal_job
 
-update job_portal_application set status = 'Pending' where id = 21;
+update job_portal_application set status = 'Pending' where id = 21
 
 update job_portal_job set deadlineForApplying = '2025-04-01' where id = 16;
 update job_portal_job set isActive = 0 where id = 16;
+
+update job_portal_notification set isRead = 0 where id = 4
 
 --update job_portal_job set isActive = 1 where vacancies > 5;
 --truncate table job_portal_user_profile

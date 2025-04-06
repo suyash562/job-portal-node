@@ -3,7 +3,7 @@ import { addJobController, deleteJobController, getAllJobsController, getEmploye
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import { getTotalNumberOfJobsController } from "../controller/userController";
 
-const jobRouter : Router = Router();
+export const jobRouter : Router = Router();
     
 jobRouter.get('/jobs', getAllJobsController);
 jobRouter.get('/totalActiveJobs', getTotalNumberOfJobsController);
@@ -13,5 +13,3 @@ jobRouter.get('/:jobId', getJobByIdController);
 jobRouter.post('/addJob', authenticateUserCredentials, addJobController);
 jobRouter.delete('/deleteJob/:jobId', authenticateUserCredentials, deleteJobController);
 jobRouter.put('/updateJob', authenticateUserCredentials, updateJobController);
-
-export default jobRouter;

@@ -10,7 +10,7 @@ const interviewScheduleRepository = AppDataSource.getRepository(InterviewSchedul
 
 
 
-export const addInterviewScheduleRepo = async (applicationId : number, interviewSchedule : InterviewSchedule) => {
+export const addInterviewScheduleRepo = async (applicationId : number, interviewSchedule : InterviewSchedule, notificationMessage : string, actionUrl : string) => {
         
     let application : Application | null = await applicationRepository.findOne(
         {
@@ -31,7 +31,7 @@ export const addInterviewScheduleRepo = async (applicationId : number, interview
             interviewSchedule.instructions ?? ''
         ) 
         
-        updateUserApplicationStatusRepo(applicationId, 'Interview');
+        updateUserApplicationStatusRepo(applicationId, 'Interview', notificationMessage, actionUrl);
         
         newInterviewSchedule.userApplication = application;
         await AppDataSource.getRepository(InterviewSchedule).save(newInterviewSchedule);

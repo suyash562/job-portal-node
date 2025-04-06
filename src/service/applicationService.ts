@@ -36,7 +36,10 @@ export const getApplicationByIdService = async (applicationId : number) => {
 }
 
 export const updateUserApplicationStatusService = async (applicationId : number, status : string) => {
-    const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, status);
+    const notificationMessage : string = `Your application for job post with application Id ${applicationId} has been ${status} by the employeer.`;
+    const actionUrl : string = `/dashboard/component/userApplication/${applicationId}`;
+
+    const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, status, notificationMessage, actionUrl);
     const application : Application = requestResult.value;
     await sendApplicationStatusResolvedMail(application.user.email, application.id.toString(), application.job.title, application.applyDate.toString().split('T')[0], application.status);
     return requestResult;
