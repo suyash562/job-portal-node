@@ -9,8 +9,7 @@ import jobRouter from "./routes/jobRoutes";
 import applicationRouter from "./routes/applicationRoutes";
 import interviewScheduleRouter from "./routes/interviewScheduleRouter";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
-
-
+import { initializeWebSockerServer } from "./config/websocket";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,10 +29,19 @@ app.use('/interview',interviewScheduleRouter);
 app.use(globalErrorHandler);
 
 AppDataSource.initialize().then(()=>{
-    app.listen(PORT, ()=>{
-        console.log(`Server running on port ${PORT}`);
-    })
+    initializeWebSockerServer().then(() => {
+        console.log('WebSocket Server initialized on port 8080');
+        app.listen(PORT, ()=>{
+            console.log(`Server running on port ${PORT}`);
+        })
+    }).catch(error => {
+        console.log(error);
+    })    
 })
 .catch(err => {
     console.log(err);
 })
+
+
+
+

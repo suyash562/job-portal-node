@@ -3,6 +3,7 @@ import { UserProfile } from "./userProfile";
 import { EmployeerCompany } from "./employeerCompany";
 import { Job } from "./job";
 import { Application } from "./application";
+import { Notification } from "./notification";
 
 @Entity({name : 'job_portal_user'})
 export class User{
@@ -26,6 +27,9 @@ export class User{
 
     @OneToMany(()=>Job, (job) => job.employeer)
     postedJobs! : Job[];
+
+    @OneToMany(()=>Notification, (notification) => notification.user)
+    notifications! : Notification[];
     
     @OneToMany(()=>Application, (application) => application.user)
     appliedJobs! : Application[];
