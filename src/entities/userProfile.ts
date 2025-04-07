@@ -13,7 +13,7 @@ export class UserProfile{
     @Column({type : "varchar", length : 30})
     lastName : string;
 
-    @OneToMany(()=>ContactNumber, (contactNumber) => contactNumber.userProfile, {cascade : true ,eager : true})
+    @OneToMany(()=>ContactNumber, (contactNumber) => contactNumber.userProfile, {cascade : true ,eager : true, onDelete : 'CASCADE'})
     contactNumbers : ContactNumber[];
 
     @Column({type : "varchar", length : 50})

@@ -87,6 +87,7 @@ export const getUserProfile = async (user : Partial<User>) => {
     const result = await userProfileRepository
         .createQueryBuilder("userProfile")
         .leftJoinAndSelect("userProfile.user", "user")
+        .leftJoinAndSelect("userProfile.contactNumbers", "contactNumbers")
         .where({
             user : user.email
         })
@@ -207,15 +208,60 @@ export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : stri
 
 
 export const updateUserProfile = async (userProfile : Partial<UserProfile>, profileId : number) => {
-    
-    // userProfile.phoneNumber = userProfile.phoneNumber?.toString();
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try{
+        const contactNumbers = userProfile.contactNumbers;
+        userProfile.contactNumbers = undefined;
 
-    const result = await userProfileRepository.update({id : profileId}, userProfile);
+        const existingUserProfile = await queryRunner.manager
+            .getRepository(UserProfile).findOneBy({
+                id : profileId
+            })
         
-    if(result.affected != 0){
+        const result = await queryRunner.manager
+            .getRepository(UserProfile)
+            .update({id : profileId}, userProfile);
+
+        const updateContact1Result = await queryRunner.manager
+            .getRepository(ContactNumber)
+            .createQueryBuilder('contactNumber')
+            .update()
+            .set({number : contactNumbers![0].number})
+            .where({number : existingUserProfile?.contactNumbers![0].number})
+            .execute();
+        
+        if(contactNumbers![1].number){
+            var updateContact2Result = await queryRunner.manager
+                .getRepository(ContactNumber)
+                .createQueryBuilder('contactNumber')
+                .update()
+                .set({number : contactNumbers![1].number})
+                .where({number : existingUserProfile?.contactNumbers![1].number})
+                .execute();
+        }
+        
+        userProfile.contactNumbers = contactNumbers;
+            
+        if(result.affected == 0 || updateContact1Result.affected == 0){
+            queryRunner.rollbackTransaction();
+            throw new GlobalError(404, 'Failed to update profile');
+        }
+        if(contactNumbers![1].number && updateContact2Result!.affected == 0){
+            queryRunner.rollbackTransaction();
+            throw new GlobalError(404, 'Failed to update profile');
+        }
+        queryRunner.commitTransaction();
         return new RequestResult(200, 'Profile has been updated', userProfile);
     }
-    throw new GlobalError(404, 'Failed to update profile');
+    catch(err){
+        await queryRunner.rollbackTransaction();
+        throw(err);
+    }
+    finally{
+        !queryRunner.isReleased ? await queryRunner.release() : null;
+    }
 } 
 
 
