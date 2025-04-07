@@ -12,6 +12,7 @@ end
 
 select * from job_portal_user;
 select * from job_portal_user_profile;
+select * from job_portal_contact_number;
 select * from job_portal_employee_company;
 select * from job_portal_job;
 select * from job_portal_application;

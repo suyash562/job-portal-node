@@ -21,13 +21,17 @@ export const registerService = async (user : any) => {
         0,
         false
     );
+
+    const contactNumbers = [new ContactNumber(user.contactNumber1)];
+    user.contactNumber2 ? contactNumbers.push( new ContactNumber(user.contactNumber2)) : null;
+
     const newUserProfile = new UserProfile(
         user.firstName,
         user.lastName,
         user.address,
         user.role === 'employeer' ? -1 : 1,
         user.role === 'employeer' ? -1 : 1,
-        [new ContactNumber(user.contactNumber1), new ContactNumber(user.contactNumber2)]
+        contactNumbers
     );
     const newEmployerCompany = user.role === 'employeer' ? new EmployeerCompany(
         user.name,

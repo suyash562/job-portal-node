@@ -4,7 +4,8 @@ import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { validateUser } from "../validators/userValidator";
+import { validate, validateContactNumbers, validateUserData, validateUserProfileData } from "../validators/validator";
+import { userSchema } from "../validators/validationSchema";
 
 
 function getResumesCount(email : string) : string {
@@ -48,11 +49,11 @@ const multerUpload = multer({
 
 const userRouter : Router = Router();
 
-userRouter.post('/register', multerUpload.single('resume'), validateUser, registerController);
+userRouter.post('/register', multerUpload.single('resume'), validateUserData, registerController);
 userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
-userRouter.post('/userProfile/update', authenticateUserCredentials, updateUserProfileController);
+userRouter.post('/userProfile/update', validate(['firstName','lastName','address'], userSchema, 'userProfile'), validateContactNumbers(userSchema, 'userProfile'), authenticateUserCredentials, updateUserProfileController);
 userRouter.get('/role', authenticateUserCredentials, getUserRoleController);
 userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, getResumeByIdController);
 userRouter.post('/resume/upload', authenticateUserCredentials, multerUpload.single('resume'), uploadResumeController);

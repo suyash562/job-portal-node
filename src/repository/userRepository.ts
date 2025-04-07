@@ -212,8 +212,10 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try{
-        const contactNumbers = userProfile.contactNumbers;
+        const contactNumbers = userProfile.contactNumbers!;
         userProfile.contactNumbers = undefined;
+        
+        console.log(contactNumbers);
 
         const existingUserProfile = await queryRunner.manager
             .getRepository(UserProfile).findOneBy({
@@ -232,23 +234,23 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
             .where({number : existingUserProfile?.contactNumbers![0].number})
             .execute();
         
-        if(contactNumbers![1].number){
+        if(contactNumbers[1]){
             var updateContact2Result = await queryRunner.manager
                 .getRepository(ContactNumber)
                 .createQueryBuilder('contactNumber')
                 .update()
-                .set({number : contactNumbers![1].number})
-                .where({number : existingUserProfile?.contactNumbers![1].number})
+                .set({number : contactNumbers[1].number})
+                .where({number : existingUserProfile?.contactNumbers[1].number})
                 .execute();
         }
         
         userProfile.contactNumbers = contactNumbers;
-            
+       
         if(result.affected == 0 || updateContact1Result.affected == 0){
             queryRunner.rollbackTransaction();
             throw new GlobalError(404, 'Failed to update profile');
         }
-        if(contactNumbers![1].number && updateContact2Result!.affected == 0){
+        if(contactNumbers[1] && updateContact2Result!.affected == 0){
             queryRunner.rollbackTransaction();
             throw new GlobalError(404, 'Failed to update profile');
         }
@@ -267,19 +269,24 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
 
 export const updateUserPassword = async (email : string, currentPassword : string, newPassword : string) => {
     
-    const result = await userRepository
+    const result = await userRepository.findOneBy({
+        email : email
+    });
+    
+    if(result && await comparePasswordWithHash(currentPassword!, result.password)){
+        const result = await userRepository
         .update(
             {
                 email : email,
-                password : currentPassword
             },
             {
-                password : newPassword
+                password : await generatePasswordHash(newPassword),
             }
         );
         
-    if(result.affected != 0){   
-        return new RequestResult(200, 'Password has been updated', true);
-    }
+        if(result.affected != 0){   
+            return new RequestResult(200, 'Password has been updated', true);
+        }
+    }     
     throw new GlobalError(401, 'Incorrect password');
 } 
