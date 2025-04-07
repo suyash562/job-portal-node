@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
 import { applicationStatusUpdatedMailTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
 import { RequestResult } from "../types/types";
+import { ContactNumber } from "../entities/contactNumber";
 
 const sentOtpMap : Map<string, string> = new Map();
 let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
@@ -23,13 +24,13 @@ export const registerService = async (user : any) => {
     const newUserProfile = new UserProfile(
         user.firstName,
         user.lastName,
-        user.phoneNumbers,
         user.address,
         user.role === 'employeer' ? -1 : 1,
-        user.role === 'employeer' ? -1 : 1
+        user.role === 'employeer' ? -1 : 1,
+        [new ContactNumber(user.contactNumber1), new ContactNumber(user.contactNumber2)]
     );
-    const newEmployeerCompany = user.role === 'employeer' ? new EmployeerCompany(
-        user.companyName,
+    const newEmployerCompany = user.role === 'employeer' ? new EmployeerCompany(
+        user.name,
         user.description,
         user.industry,
         user.companySize,
@@ -39,7 +40,7 @@ export const registerService = async (user : any) => {
     ) : null;
 
     newUser.profile = newUserProfile;
-    if(newEmployeerCompany) newUser.employeerCompany = newEmployeerCompany;
+    if(newEmployerCompany) newUser.employeerCompany = newEmployerCompany;
     
     const registrationResult : RequestResult = await registerRepo(newUser);
     // await sendOtpMail(user.email);

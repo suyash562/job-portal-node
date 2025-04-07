@@ -3,7 +3,8 @@ import { GlobalError } from "../types/types";
 
 
 export const globalErrorHandler = (err : Error, req : Request, res : Response, next : NextFunction) => {
-    console.log(err.stack);
+    console.log(err);
+    
     if(err instanceof GlobalError){
         res.status(err.statusCode).send(err.message);
     }

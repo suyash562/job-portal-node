@@ -18,7 +18,7 @@ export const getNotificationsOfCurrentUserRepo = async (user : User) => {
     if(getUser){
         getUser.notifications = getUser.notifications.sort((notification1, notification2) => {
             return notification2.id - notification1.id;
-        })   
+        });   
         return new RequestResult(200, 'success', {notifications : getUser.notifications, newNotificationsCount : getUser.newNotifications});
     }
     throw new Error();

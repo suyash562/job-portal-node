@@ -1,4 +1,5 @@
 import { AppDataSource } from "../config/database"
+import { ContactNumber } from "../entities/contactNumber";
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
 import { comparePasswordWithHash, generatePasswordHash } from "../service/userService";
@@ -6,21 +7,32 @@ import { GlobalError, RequestResult } from "../types/types";
 
 const userProfileRepository = AppDataSource.getRepository(UserProfile);
 const userRepository = AppDataSource.getRepository(User);
+const contactNumberRepository = AppDataSource.getRepository(ContactNumber);
 
 
 export const registerRepo = async (user : User) => {   
-    const alreadyExists = await userRepository.findOneBy(
+    const emailAlreadyExists = await userRepository.findOneBy(
         {
             email : user.email,
         }
     );
 
-    if(!alreadyExists){
-        user.password = await generatePasswordHash(user.password);
-        await userRepository.save(user);
-        return new RequestResult(200, 'success', true);
+    if(emailAlreadyExists){
+        throw new GlobalError(403, 'Email already exists. Try again with another email');
     }
-    throw new GlobalError(403, 'Email already exists. Try again with another email');
+    
+    const contactNumberAlreadyExists = await contactNumberRepository.findOne({
+        where : [{number : user.profile.contactNumbers[0].number}, {number : user.profile.contactNumbers[1]?.number}]
+    })
+    
+    if(contactNumberAlreadyExists){
+        throw new GlobalError(403, 'Contact number already exists.');
+    }
+
+    
+    user.password = await generatePasswordHash(user.password);
+    await userRepository.save(user);
+    return new RequestResult(200, 'success', true);
 }
 
 
@@ -196,7 +208,7 @@ export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : stri
 
 export const updateUserProfile = async (userProfile : Partial<UserProfile>, profileId : number) => {
     
-    userProfile.phoneNumber = userProfile.phoneNumber?.toString();
+    // userProfile.phoneNumber = userProfile.phoneNumber?.toString();
 
     const result = await userProfileRepository.update({id : profileId}, userProfile);
         

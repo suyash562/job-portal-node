@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user";
+import { ContactNumber } from "./contactNumber";
 
 @Entity({name : 'job_portal_user_profile'})
 export class UserProfile{
@@ -12,8 +13,8 @@ export class UserProfile{
     @Column({type : "varchar", length : 30})
     lastName : string;
 
-    @Column({type : "varchar", unique : true})
-    phoneNumber : string;
+    @OneToMany(()=>ContactNumber, (contactNumber) => contactNumber.userProfile, {cascade : true ,eager : true})
+    contactNumbers : ContactNumber[];
 
     @Column({type : "varchar", length : 50})
     address : string;
@@ -31,16 +32,16 @@ export class UserProfile{
     constructor(
         firstName : string,
         lastName : string,
-        phoneNumbers : string,
         address : string,
         resumeCount : number,
         primaryResume : number,
+        contactNumbers : ContactNumber[]
     ){
         this.firstName = firstName ,
         this.lastName = lastName ,
-        this.phoneNumber = phoneNumbers ,
         this.address = address ,
         this.resumeCount = resumeCount, 
-        this.primaryResume = primaryResume
+        this.primaryResume = primaryResume,
+        this.contactNumbers = contactNumbers
     }
 }

@@ -4,6 +4,7 @@ import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { validateUser } from "../validators/userValidator";
 
 
 function getResumesCount(email : string) : string {
@@ -47,7 +48,7 @@ const multerUpload = multer({
 
 const userRouter : Router = Router();
 
-userRouter.post('/register', multerUpload.single('resume'), registerController);
+userRouter.post('/register', multerUpload.single('resume'), validateUser, registerController);
 userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
