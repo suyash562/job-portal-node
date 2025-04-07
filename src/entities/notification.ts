@@ -11,6 +11,9 @@ export class Notification{
 
     @Column({type : 'varchar', length : 40})
     actionUrl : string;
+    
+    @Column({type : 'datetime'})
+    generatedAt : Date;
 
     @Column({type : 'bit'})
     isRead : boolean;
@@ -22,11 +25,13 @@ export class Notification{
         message : string,
         actionUrl : string,
         user : User,
+        generatedAt : Date,
         isRead : boolean
     ){
         this.message = message;
         this.actionUrl = actionUrl;
         this.user = user;
+        this.generatedAt = generatedAt;
         this.isRead = isRead;
     }
 }

@@ -7,7 +7,7 @@ import { sendInterviewScheduledMail } from "./userService";
 
 export const addInterviewScheduleService = async (applicationId : number, interviewSchedule : InterviewSchedule) => {
 
-    const notificationMessage : string = `An interview has been scheduled on ${interviewSchedule.interviewDate} by the employeer for your application with Id ${applicationId}`;
+    const notificationMessage : string = `An interview has been scheduled by the employeer on ${interviewSchedule.interviewDate} for your application with Id ${applicationId}`;
     const actionUrl : string = `/dashboard/component/userApplication/${applicationId}`;
     
     const requestResult : RequestResult = await addInterviewScheduleRepo(applicationId, interviewSchedule, notificationMessage, actionUrl);

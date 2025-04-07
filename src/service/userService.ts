@@ -17,6 +17,7 @@ export const registerService = async (user : any) => {
         user.email,
         user.password,
         user.role,
+        0,
         false
     );
     const newUserProfile = new UserProfile(
@@ -71,7 +72,7 @@ export const sendApplicationStatusResolvedMail = async (email : string, applicat
         subject: "Application accepted",
         html : applicationStatusUpdatedMailTemplate(applicationId, jobPost, appliedDate, applicationStatus),
     };
-    await transporter.sendMail(mailOptions); 
+    // await transporter.sendMail(mailOptions); 
     return true; 
 }
 
@@ -83,7 +84,7 @@ export const sendInterviewScheduledMail = async (email : string, jobPost : strin
         subject: "Interview scheduled",
         html : interviewScheduledMailTemplate(jobPost, applicationId, scheduleDate, scheduleTime),
     };
-    await transporter.sendMail(mailOptions); 
+    // await transporter.sendMail(mailOptions); 
     return true; 
 }
 

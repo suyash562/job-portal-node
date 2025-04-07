@@ -8,9 +8,6 @@ import { GlobalError, RequestResult } from "../types/types";
 const jobRepository = AppDataSource.getRepository(Job);
 const userRepository = AppDataSource.getRepository(User);
 
-const queryRunner = AppDataSource.createQueryRunner();
-
-
 
 export const addJobRepo = async (user : User, job : Job) => {
     
@@ -83,6 +80,7 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
 }
 
 export const deleteJobRepo = async (jobId : number) => {
+    const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try{

@@ -15,6 +15,9 @@ export class User{
 
     @Column({type : "varchar", length : 10})
     role  : 'user' | 'employeer' | 'admin';
+
+    @Column({type : "int"})
+    newNotifications  : number;
     
     @Column({type : "bit"})
     isVerified  : boolean;
@@ -38,11 +41,13 @@ export class User{
         email : string,
         password : string,
         role : 'user' | 'employeer' | 'admin',
+        newNotifications : number,
         isVerified : boolean
     ){
         this.email = email;
         this.password = password;
         this.role = role;
-        this.isVerified = isVerified
+        this.isVerified = isVerified,
+        this.newNotifications = newNotifications
     }
 }

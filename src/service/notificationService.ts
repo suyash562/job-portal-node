@@ -3,11 +3,10 @@ import { getNotificationsOfCurrentUserRepo, markNotificationAsReadRepo } from ".
 
 
 
-
 export const getNotificationsOfCurrentUserService = async (user : User) => {
     return await getNotificationsOfCurrentUserRepo(user);
 }
 
-export const markNotificationAsReadService = async (notificationId : number) => {
-    return await markNotificationAsReadRepo(notificationId);
+export const markNotificationAsReadService = async (email : string, notificationId : number) => {
+    return await markNotificationAsReadRepo(email, notificationId);
 }

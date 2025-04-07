@@ -63,6 +63,7 @@ export const getApplicationsForEmployeerRepo = async (user : User) => {
     return new RequestResult(200, 'success', applications);
 }
 
+
 export const getApplicationsOfCurrentUserRepo = async (user : User) => {
     
     const applications = await applicationRepository
@@ -100,9 +101,9 @@ export const updateUserApplicationStatusRepo = async (applicationId : number, st
             throw new GlobalError(404, "Failed to update application status");
         }
         
-        const newNotification : Notification = new Notification(notificationMessage, actionUrl, application.user, false);
+        const newNotification : Notification = new Notification(notificationMessage, actionUrl, application.user, new Date() ,false);
         await queryRunner.manager.getRepository(Notification).save(newNotification);
-
+        
         await queryRunner.commitTransaction();
         return new RequestResult(200, 'Application status updated', application);
     }
