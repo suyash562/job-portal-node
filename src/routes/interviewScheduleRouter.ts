@@ -18,7 +18,8 @@ interviewScheduleRouter.post(
     ], interviewScheduleSchema, 'interviewSchedule'),
     validateDate('interviewSchedule', 'interviewDate'),
     validateTime('interviewSchedule', 'interviewTime'),
-    addInterviewScheduleController);
+    addInterviewScheduleController
+);
     
 interviewScheduleRouter.get('/applicantSchedules/:applicationId', validateParams(['applicationId']), authenticateUserCredentials ,getScheduledInterviewsController);
 

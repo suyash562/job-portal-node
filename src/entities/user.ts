@@ -4,7 +4,7 @@ import { EmployeerCompany } from "./employeerCompany";
 import { Job } from "./job";
 import { Application } from "./application";
 import { Notification } from "./notification";
-import { ContactNumber } from "./contactNumber";
+
 
 @Entity({name : 'job_portal_user'})
 export class User{

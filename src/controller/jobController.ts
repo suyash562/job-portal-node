@@ -52,7 +52,7 @@ export const deleteJobController = async (req : Request, res : Response, next : 
 
 export const getJobByIdController = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        const jobId = parseInt(req.params.jobId);        
+        const {jobId} : {jobId : number} = req.body;        
         const result : RequestResult = await getJobByIdService(jobId);
         res.status(result.statusCode).send(result);
     }

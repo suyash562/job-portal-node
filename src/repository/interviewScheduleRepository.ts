@@ -47,8 +47,9 @@ export const getScheduledInterviewsRepo = async (applicationId : number) => {
         .createQueryBuilder('interview')
         .select()
         .where("interview.userApplicationId = :applicationId", {applicationId : applicationId})
+        .orderBy("interviewDate", 'DESC')
         .getMany();
-
+    
     return new RequestResult(200, 'Success', scheduledInterviews);   
 
 }

@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { GlobalError } from "../types/types";
 import { companySchema, userSchema } from "./validationSchema";
 import { EmployeerCompany } from "../entities/employeerCompany";
-import { UserProfile } from "../entities/userProfile";
-import { DateTime, Time } from "mssql";
 
 
 export const validateUserData = (req : Request, res : Response, next : NextFunction) => {
@@ -182,7 +180,6 @@ export const validateSalaryRange = (dataType : string, validationVariableName : 
             
             const salaryRangeFrom = parseInt(data.split(' ')[0]);
             const salaryRangeTo = parseInt(data.split(' ')[1]);
-            console.log(typeof salaryRangeFrom === 'number' && typeof salaryRangeTo === 'number' && salaryRangeFrom < salaryRangeTo);
             
             if(typeof salaryRangeFrom === 'number' && typeof salaryRangeTo === 'number' && salaryRangeFrom < salaryRangeTo){
                 next();
