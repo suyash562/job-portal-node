@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteResumeController, deleteUserIfNotVerifiedController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
+import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, getNotVerifiedEmployersController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -54,6 +54,8 @@ userRouter.post('/register', multerUpload.single('resume'), validateUserData, re
 userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
+userRouter.get('/employerDetails', authenticateUserCredentials, getNotVerifiedEmployersController);
+userRouter.get('/approve-employer/:employerEmail', authenticateUserCredentials, approveEmployerRequestController);
 userRouter.post('/userProfile/update', validate(['firstName','lastName','address'], userSchema, 'userProfile'), validateContactNumbers(userSchema, 'userProfile'), authenticateUserCredentials, updateUserProfileController);
 userRouter.get('/role', authenticateUserCredentials, getUserRoleController);
 userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, validateParams(['resumeNumber']), getResumeByIdController);

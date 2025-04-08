@@ -5,7 +5,6 @@ import { Job } from "./job";
 import { Application } from "./application";
 import { Notification } from "./notification";
 
-
 @Entity({name : 'job_portal_user'})
 export class User{
     @PrimaryColumn()
@@ -22,6 +21,9 @@ export class User{
     
     @Column({type : "bit"})
     isVerified  : boolean;
+    
+    @Column({type : "bit"})
+    isVerifiedByAdmin  : boolean;
 
     @OneToOne(()=>UserProfile, (userProfile) => userProfile.user, {cascade : true})
     profile! : UserProfile;
@@ -43,12 +45,14 @@ export class User{
         password : string,
         role : 'user' | 'employeer' | 'admin',
         newNotifications : number,
-        isVerified : boolean
+        isVerified : boolean,
+        isVerifiedByAdmin : boolean,
     ){
         this.email = email;
         this.password = password;
         this.role = role;
         this.isVerified = isVerified,
-        this.newNotifications = newNotifications
+        this.newNotifications = newNotifications,
+        this.isVerifiedByAdmin = isVerifiedByAdmin
     }
 }

@@ -38,8 +38,11 @@ export const registerRepo = async (user : User) => {
 
 export const vefiryUserCredentials = async (user : Partial<User>) => {
 
-    const result = await userRepository.findOneBy({
-        email : user.email
+    const result = await userRepository.findOne({
+        where : {
+            email : user.email,
+            isVerifiedByAdmin : true
+        }
     });
     
     if(result && await comparePasswordWithHash(user.password!, result.password)){
@@ -97,6 +100,45 @@ export const getUserProfile = async (user : Partial<User>) => {
         return new RequestResult(200, 'success', result);
     }
     throw new GlobalError(404, 'Profile not found');
+
+} 
+
+
+export const getNotVerifiedEmployers = async () => {
+    
+    const result = await userRepository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
+        .leftJoinAndSelect("user.profile", "profile")
+        .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
+        .where({
+            isVerifiedByAdmin : false
+        })
+        .getMany();        
+    
+    if(result){
+        return new RequestResult(200, 'success', result);
+    }
+    throw new GlobalError(404, 'Failed to get employeer details');
+
+} 
+
+
+export const approveEmployerRequest = async (email : string) => {
+    
+    const result = await userRepository
+        .createQueryBuilder("user")
+        .update()
+        .set({isVerifiedByAdmin : true})
+        .where({
+            email : email
+        })
+        .execute();        
+    
+    if(result.affected != 0){
+        return new RequestResult(200, 'Employer request approved', result);
+    }
+    throw new GlobalError(404, 'Failed to approve employeer request');
 
 } 
 

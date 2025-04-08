@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { 
+    approveEmployerRequestService,
     decreaseResumeCountAndUpdatePrimaryResumeService, 
     deleteNotVerifiedUserService, 
+    getNotVerifiedEmployersService, 
     getUserProfileService, 
     getUserRoleService, 
     loginService,  
@@ -122,10 +124,32 @@ export const getUserProfileController = async (req : Request, res : Response, ne
     }
 }
 
+export const getNotVerifiedEmployersController = async (req : Request, res : Response, next : NextFunction) => {
+    try{
+        const result : RequestResult = await getNotVerifiedEmployersService();
+        res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
 export const getUserRoleController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const {user} = req.body;
         const result : RequestResult = await getUserRoleService(user);
+        res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+export const approveEmployerRequestController = async (req : Request, res : Response, next : NextFunction) => {
+    try{
+        const {user} = req.body;
+        const employerEmail : string = req.params['employerEmail'];
+        const result : RequestResult = await approveEmployerRequestService(employerEmail);
         res.status(result.statusCode).send(result);
     }
     catch(err){

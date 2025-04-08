@@ -2,15 +2,21 @@ import { MailOptions } from "nodemailer/lib/json-transport";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, getUserProfile, getUserRole, markUserAsVerified, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
+import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
-import { applicationStatusUpdatedMailTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
+import { applicationStatusUpdatedMailTemplate, employerAccountApprovedTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
 import { RequestResult } from "../types/types";
 import { ContactNumber } from "../entities/contactNumber";
 
 const sentOtpMap : Map<string, string> = new Map();
 let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
+
+// async function d(){
+//     console.log(await bcrypt.hash('admin@123', 10));
+    
+// }
+// d()
 
 export const registerService = async (user : any) => {
     
@@ -19,7 +25,8 @@ export const registerService = async (user : any) => {
         user.password,
         user.role,
         0,
-        false
+        false,
+        false,
     );
 
     const contactNumbers = [new ContactNumber(user.contactNumber1)];
@@ -47,7 +54,7 @@ export const registerService = async (user : any) => {
     if(newEmployerCompany) newUser.employeerCompany = newEmployerCompany;
     
     const registrationResult : RequestResult = await registerRepo(newUser);
-    // await sendOtpMail(user.email);
+    await sendOtpMail(user.email);
     return registrationResult;
 }
 
@@ -77,7 +84,7 @@ export const sendApplicationStatusResolvedMail = async (email : string, applicat
         subject: "Application accepted",
         html : applicationStatusUpdatedMailTemplate(applicationId, jobPost, appliedDate, applicationStatus),
     };
-    // await transporter.sendMail(mailOptions); 
+    await transporter.sendMail(mailOptions); 
     return true; 
 }
 
@@ -89,7 +96,19 @@ export const sendInterviewScheduledMail = async (email : string, jobPost : strin
         subject: "Interview scheduled",
         html : interviewScheduledMailTemplate(jobPost, applicationId, scheduleDate, scheduleTime),
     };
-    // await transporter.sendMail(mailOptions); 
+    await transporter.sendMail(mailOptions); 
+    return true; 
+}
+
+export const sendEmployerRequestApprovedMail = async (email : string) => {
+
+    const mailOptions : MailOptions = {
+        from: `SnapHire ${process.env.GMAIL_USER}`,
+        to: email,
+        subject: "Account Verified",
+        html : employerAccountApprovedTemplate(),
+    };
+    await transporter.sendMail(mailOptions); 
     return true; 
 }
 
@@ -121,6 +140,10 @@ export const markUserAsVerifiedService = async (email : string) => {
     return await markUserAsVerified(email);
 }
 
+export const getNotVerifiedEmployersService = async () => {
+    return await getNotVerifiedEmployers();
+}
+
 export const deleteNotVerifiedUserService = async (email : string) => {
     return await deleteNotVerifiedUser(email);
 }
@@ -147,6 +170,13 @@ export const getUserRoleService = async (user : Partial<User>) => {
 
 export const updateResumeCountService = async (email : string, count :number) => {
     return await updateResumeCount(email, count);
+}
+
+export const approveEmployerRequestService = async (email : string) => {
+    const requestResult : RequestResult =  await approveEmployerRequest(email);
+    console.log(email);
+    await sendEmployerRequestApprovedMail(email);
+    return requestResult;
 }
 
 export const updatePrimaryResumeService = async (email : string, resumeNumber : number) => {

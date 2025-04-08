@@ -16,3 +16,8 @@ export const interviewScheduledMailTemplate = (jobPost : string, applicationId :
     return `<p>Dear Applicant, an interview has been scheduled by the employeer on <strong>${scheduleDate}</strong>, <strong>${scheduleTime}</strong> regarding your application for <strong>${jobPost}</strong> with application id <strong>${applicationId}</strong>. For more details, please log in to your account.</p>
             <h3>Snap Hire</h3>`;
 }
+
+export const employerAccountApprovedTemplate = () => {
+    return `<p>Your account has been approved by the admin. Now you can login with your credentials.</p>
+            <h3>Snap Hire</h3>`;
+}
