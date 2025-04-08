@@ -37,10 +37,11 @@ export const getApplicationByIdRepo = async (applicationId : number) => {
     .createQueryBuilder('application')
     .leftJoinAndSelect("application.user", "user")
     .leftJoinAndSelect("user.profile", "profile")
+    .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
     .leftJoinAndSelect("application.job", "job")
     .where("application.id = :id", {id : applicationId})
     .getOne();
-
+    
     if(application){
         return new RequestResult(200, 'Success', application);
     }
@@ -56,6 +57,7 @@ export const getApplicationsForEmployeerRepo = async (user : User) => {
         .leftJoinAndSelect("application.user", "user")
         .leftJoinAndSelect("application.job","job")
         .leftJoinAndSelect("user.profile","profile")
+        .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
         .where("job.employeer = :email", {email : user.email})
         .andWhere("application.isActive = :isActive", {isActive : 1})
         .getMany();

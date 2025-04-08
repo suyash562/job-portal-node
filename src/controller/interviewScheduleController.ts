@@ -18,7 +18,7 @@ export const addInterviewScheduleController = async (req : Request, res : Respon
 
 export const getScheduledInterviewsController = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        const applicationId : number = parseInt(req.params['applicationId']);
+        const {applicationId} : { applicationId : number } = req.body;
         const result : RequestResult = await getScheduledInterviewsService(applicationId);
         res.status(result.statusCode).send(result);
     }

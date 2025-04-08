@@ -17,7 +17,7 @@ export const getNotificationsOfCurrentUserController = async (req : Request, res
 
 export const markNotificationAsReadController = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        const {user, notificationId} : {user : User, notificationId : number} = req.body;        
+        const {user, notificationId} : {user : User, notificationId : number} = req.body;     
         const result : RequestResult = await markNotificationAsReadService(user.email, notificationId);
         res.status(result.statusCode).send(result);
     }

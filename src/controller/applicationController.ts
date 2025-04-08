@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entities/user";
-import { RequestResult } from "../types/types";
+import { GlobalError, RequestResult } from "../types/types";
 import { 
     applyForJobService,  
     getApplicationByIdService, 
@@ -12,8 +12,7 @@ import fs from 'fs';
 
 export const applyForJobController = async (req : Request, res : Response, next : NextFunction) => {
     try{
-        const {user} : {user : User} = req.body;
-        const jobId : number = parseInt(req.params['jobId'] as string);
+        const {user, jobId} : {user : User, jobId : number} = req.body;
         const result : RequestResult = await applyForJobService(user, jobId);
         res.status(result.statusCode).send(result);
     }
@@ -46,7 +45,7 @@ export const getApplicationsOfCurrentUserController = async (req : Request, res 
 
 export const getApplicationByIdController = async (req : Request, res : Response, next : NextFunction) => {
     try{  
-        const applicationId : number = parseInt(req.params['applicationId'] as string);       
+        const {applicationId} : {applicationId : number} = req.body;   
         const result : RequestResult = await getApplicationByIdService(applicationId);
         res.status(result.statusCode).send(result);
     }
@@ -57,7 +56,7 @@ export const getApplicationByIdController = async (req : Request, res : Response
 
 export const getResumeByApplicationIdController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
-        const applicationId : number = parseInt(req.params['applicationId'] as string);    
+        const {applicationId} : {applicationId : number} = req.body; 
         const resumeFile = fs.readFileSync(`./public/documents/applicationResume/${applicationId}.pdf`); 
         res.contentType("application/pdf");
         res.send(resumeFile);
@@ -71,6 +70,9 @@ export const updateUserApplicationStatusController = async (req : Request, res :
     try{                 
         const status : string = req.params['applicationStatus'];    
         const applicationId : number = parseInt(req.params['applicationId'] as string);    
+        if(!Number.isInteger(applicationId)){
+            throw new GlobalError(400, 'Bad Request');
+        }
         const result : RequestResult = await updateUserApplicationStatusService(applicationId, status);
         res.status(result.statusCode).send(result);
     }

@@ -7,11 +7,12 @@ import { addJobService, deleteJobService, getAllJobsService, getEmployeerPostedJ
 export const addJobController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const {user, job} : {user : User, job : Job} = req.body;
+        
         const result : RequestResult = await addJobService(user, job);
         res.status(result.statusCode).send(result);
     }
     catch(err){
-        next(err);
+        next(err);        
     }
 }
 

@@ -135,8 +135,7 @@ export const getUserRoleController = async (req : Request, res : Response, next 
 
 export const getResumeByIdController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
-        const {user} : {user : User} = req.body;    
-        const resumeNumber : number = parseInt(req.params['resumeNumber']);    
+        const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;    
         const resumeFile : Buffer = fs.readFileSync(`./public/documents/userResume/${user.email}/${resumeNumber}.pdf`);     
         res.contentType("application/pdf");
         res.send(resumeFile);
