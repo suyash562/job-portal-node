@@ -31,11 +31,11 @@ export const addInterviewScheduleRepo = async (applicationId : number, interview
             interviewSchedule.instructions ?? ''
         ) 
         
-        updateUserApplicationStatusRepo(applicationId, 'Interview', notificationMessage, actionUrl);
+        const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, 'Interview', notificationMessage, actionUrl);
         
         newInterviewSchedule.userApplication = application;
         await AppDataSource.getRepository(InterviewSchedule).save(newInterviewSchedule);
-        return new RequestResult(200, 'Interview scheduled successfully', {application : application});
+        return new RequestResult(200, 'Interview scheduled successfully', requestResult.value);
     }
     throw new GlobalError(404, 'Failed to add schedule');
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, getNotVerifiedEmployersController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
+import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, forgotPasswordController, getNotVerifiedEmployersController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -53,6 +53,7 @@ const userRouter : Router = Router();
 userRouter.post('/register', multerUpload.single('resume'), validateUserData, registerController);
 userRouter.post('/login', loginController);
 userRouter.get('/logout', logoutController);
+userRouter.get('/forgot-password/:userEmail', forgotPasswordController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
 userRouter.get('/employerDetails', authenticateUserCredentials, getNotVerifiedEmployersController);
 userRouter.get('/approve-employer/:employerEmail', authenticateUserCredentials, approveEmployerRequestController);
@@ -66,5 +67,6 @@ userRouter.post('/password/update', authenticateUserCredentials, updateUserPassw
 userRouter.post('/verify-otp', verifyOtpController);
 userRouter.post('/resend-otp', resendOtpController);
 userRouter.post('/delete/not-verified', deleteUserIfNotVerifiedController);
+userRouter.post('/reset-password', resetPasswordController);
 
 export default userRouter;

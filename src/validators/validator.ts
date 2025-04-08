@@ -70,8 +70,7 @@ export const validate = (keys : string[], schema : any, dataType : string) => {
     return (req : Request, res : Response, next : NextFunction) => {    
         try{
             const data : any = req.body[dataType]; 
-            console.log(data);
-            
+           
             if(!data){
                 throw new GlobalError(400, 'Invalid data');
             }

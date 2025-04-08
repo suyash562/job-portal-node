@@ -3,6 +3,7 @@ import { InterviewSchedule } from "../entities/interviewSchedule";
 import { addInterviewScheduleRepo, getScheduledInterviewsRepo } from "../repository/interviewScheduleRepository";
 import { RequestResult } from "../types/types";
 import { sendInterviewScheduledMail } from "./userService";
+import { sendNotificationToActiveClient } from "./websocket";
 
 
 export const addInterviewScheduleService = async (applicationId : number, interviewSchedule : InterviewSchedule) => {
@@ -12,6 +13,8 @@ export const addInterviewScheduleService = async (applicationId : number, interv
     
     const requestResult : RequestResult = await addInterviewScheduleRepo(applicationId, interviewSchedule, notificationMessage, actionUrl);
     const application : Application = requestResult.value.application;
+    
+    sendNotificationToActiveClient(requestResult.value.application.user.email, requestResult.value.savedNotification);
     await sendInterviewScheduledMail(
         application.user.email,
         application.job.title,

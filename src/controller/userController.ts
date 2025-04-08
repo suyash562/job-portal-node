@@ -3,12 +3,14 @@ import {
     approveEmployerRequestService,
     decreaseResumeCountAndUpdatePrimaryResumeService, 
     deleteNotVerifiedUserService, 
+    emailExistsService, 
     getNotVerifiedEmployersService, 
     getUserProfileService, 
     getUserRoleService, 
     loginService,  
     registerService, 
     removeSentOtpFromMap, 
+    resetPasswordService, 
     sendOtpMail, 
     updatePrimaryResumeService, 
     updateResumeCountService,
@@ -54,8 +56,9 @@ export const registerController = async (req : Request, res : Response, next : N
 
 export const verifyOtpController = async (req : Request, res : Response, next : NextFunction) => {
     try{     
-        const {email, otp} = req.body;
-        if(await verifyOtpService(email, otp)){ 
+        const {email, otp, passwordReset} = req.body;
+        
+        if(await verifyOtpService(email, otp, passwordReset)){ 
             res.status(200).send(true); 
         }
         else{
@@ -69,14 +72,41 @@ export const verifyOtpController = async (req : Request, res : Response, next : 
 
 export const resendOtpController = async (req : Request, res : Response, next : NextFunction) => {
     try{     
-        const {email} = req.body;
-        await sendOtpMail(email);
+        const {email, passwordReset} = req.body;
+        const result : RequestResult = await emailExistsService(email);
+        await sendOtpMail(email, passwordReset);
         res.status(200).send({message : 'OTP resent'});
     }
     catch(err){
         next(err);
     }
 }
+
+
+export const forgotPasswordController = async (req : Request, res : Response, next : NextFunction) => {
+    try{
+        const userEmail : string = req.params['userEmail'];
+        const result : RequestResult = await emailExistsService(userEmail);
+        await sendOtpMail(userEmail, true);
+        res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+
+export const resetPasswordController = async (req : Request, res : Response, next : NextFunction) => {
+    try{
+        const {email, password} : {email : string, password : string} = req.body;
+        const result : RequestResult = await resetPasswordService(email, password);
+        res.status(result.statusCode).send(result);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
 
 export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
     try{     

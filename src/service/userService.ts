@@ -2,7 +2,7 @@ import { MailOptions } from "nodemailer/lib/json-transport";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
+import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, emailExistsRepo, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, resetPassword, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
 import { applicationStatusUpdatedMailTemplate, employerAccountApprovedTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
@@ -14,7 +14,6 @@ let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
 
 // async function d(){
 //     console.log(await bcrypt.hash('admin@123', 10));
-    
 // }
 // d()
 
@@ -26,7 +25,7 @@ export const registerService = async (user : any) => {
         user.role,
         0,
         false,
-        false,
+        user.role === 'user' ? true : false,
     );
 
     const contactNumbers = [new ContactNumber(user.contactNumber1)];
@@ -54,12 +53,12 @@ export const registerService = async (user : any) => {
     if(newEmployerCompany) newUser.employeerCompany = newEmployerCompany;
     
     const registrationResult : RequestResult = await registerRepo(newUser);
-    await sendOtpMail(user.email);
+    await sendOtpMail(user.email, false);
     return registrationResult;
 }
 
 
-export const sendOtpMail = async (email : string) => {
+export const sendOtpMail = async (email : string, passwordResetMail : boolean) => {
 
     const otp : string = Math.random().toString().split('.')[1].slice(0,6);
     
@@ -71,7 +70,9 @@ export const sendOtpMail = async (email : string) => {
     };
     await transporter.sendMail(mailOptions); 
     sentOtpMap.set(email, otp);
-    setTimeoutForDeletingNotVerifiedUsers(email);
+    if(!passwordResetMail){
+        setTimeoutForDeletingNotVerifiedUsers(email);
+    }
 
     return true; 
 }
@@ -112,10 +113,13 @@ export const sendEmployerRequestApprovedMail = async (email : string) => {
     return true; 
 }
 
-export const verifyOtpService = async (email : string, otp : string) => {
+export const verifyOtpService = async (email : string, otp : string, passwordResetMail : boolean) => {
+    
     if(sentOtpMap.get(email) === otp){
-        clearTimeout(deleteNotVerifiedUserTimeout);
-        await markUserAsVerifiedService(email);
+        if(!passwordResetMail){
+            clearTimeout(deleteNotVerifiedUserTimeout);
+            await markUserAsVerifiedService(email);
+        }
         removeSentOtpFromMap(email);
         return true;
     }
@@ -142,6 +146,10 @@ export const markUserAsVerifiedService = async (email : string) => {
 
 export const getNotVerifiedEmployersService = async () => {
     return await getNotVerifiedEmployers();
+}
+
+export const emailExistsService = async (userEmail : string) => {
+    return await emailExistsRepo(userEmail);
 }
 
 export const deleteNotVerifiedUserService = async (email : string) => {
@@ -193,4 +201,8 @@ export const updateUserProfileService = async (userProfile : Partial<UserProfile
 
 export const updateUserPasswordService = async (email : string, currentPassword : string, newPassword : string) => {
     return await updateUserPassword(email, currentPassword, newPassword);
+}
+
+export const resetPasswordService = async (email : string, newPassword : string) => {
+    return await resetPassword(email, newPassword);
 }

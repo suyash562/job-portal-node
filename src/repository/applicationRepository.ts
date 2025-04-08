@@ -104,10 +104,10 @@ export const updateUserApplicationStatusRepo = async (applicationId : number, st
         }
         
         const newNotification : Notification = new Notification(notificationMessage, actionUrl, application.user, new Date() ,false);
-        await queryRunner.manager.getRepository(Notification).save(newNotification);
+        const savedNotification = await queryRunner.manager.getRepository(Notification).save(newNotification);
         
         await queryRunner.commitTransaction();
-        return new RequestResult(200, 'Application status updated', application);
+        return new RequestResult(200, 'Application status updated', {application : application , savedNotification : savedNotification});
     }
     catch(err){
         await queryRunner.rollbackTransaction();

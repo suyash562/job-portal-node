@@ -10,6 +10,7 @@ import {
 } from "../repository/applicationRepository";
 import { sendApplicationStatusResolvedMail } from "./userService";
 import { Application } from "../entities/application";
+import { sendNotificationToActiveClient } from "./websocket";
 
 
 export const applyForJobService = async (user : User, jobId : number) => {
@@ -40,7 +41,9 @@ export const updateUserApplicationStatusService = async (applicationId : number,
     const actionUrl : string = `/dashboard/component/userApplication/${applicationId}`;
 
     const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, status, notificationMessage, actionUrl);
-    const application : Application = requestResult.value;
+    const application : Application = requestResult.value.application;
+    sendNotificationToActiveClient(requestResult.value.application.user.email ,requestResult.value.savedNotification);
     await sendApplicationStatusResolvedMail(application.user.email, application.id.toString(), application.job.title, application.applyDate.toString().split('T')[0], application.status);
+    
     return requestResult;
 }

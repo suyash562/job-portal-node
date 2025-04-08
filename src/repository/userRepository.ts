@@ -10,6 +10,20 @@ const userRepository = AppDataSource.getRepository(User);
 const contactNumberRepository = AppDataSource.getRepository(ContactNumber);
 
 
+export const emailExistsRepo = async (userEmail : string) => {   
+    const emailAlreadyExists = await userRepository.findOneBy(
+        {
+            email : userEmail,
+        }
+    );
+
+    if(emailAlreadyExists){
+        return new RequestResult(200, 'success', true);
+    }
+    throw new GlobalError(403, 'Email does not exist');
+}
+
+
 export const registerRepo = async (user : User) => {   
     const emailAlreadyExists = await userRepository.findOneBy(
         {
@@ -52,6 +66,7 @@ export const vefiryUserCredentials = async (user : Partial<User>) => {
 
 } 
 
+
 export const markUserAsVerified = async (email : string) => {
 
     const result = await userRepository.update(
@@ -67,8 +82,8 @@ export const markUserAsVerified = async (email : string) => {
         return new RequestResult(200, 'success', true);
     }        
     throw new GlobalError(401, 'Failed to update user verification status');
-
 } 
+
 
 export const deleteNotVerifiedUser = async (email : string) => {
 
@@ -331,4 +346,23 @@ export const updateUserPassword = async (email : string, currentPassword : strin
         }
     }     
     throw new GlobalError(401, 'Incorrect password');
+} 
+
+
+export const resetPassword = async (email : string, newPassword : string) => {
+    
+    const result = await userRepository
+    .update(
+        {
+            email : email,
+        },
+        {
+            password : await generatePasswordHash(newPassword),
+        }
+    );
+    
+    if(result.affected != 0){   
+        return new RequestResult(200, 'Password reset', true);
+    }
+    throw new GlobalError(401, 'Failed to reset password');
 } 
