@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/database";
 import { Notification } from "../entities/notification";
 import { User } from "../entities/user";
-import { RequestResult } from "../types/types";
+import { GlobalError, RequestResult } from "../types/types";
 
 
 const userRepository = AppDataSource.getRepository(User);
@@ -21,7 +21,9 @@ export const getNotificationsOfCurrentUserRepo = async (user : User) => {
         });   
         return new RequestResult(200, 'success', {notifications : getUser.notifications, newNotificationsCount : getUser.newNotifications});
     }
-    throw new Error();
+    console.log(user);
+    
+    throw new GlobalError(500, 'Failed to load notifications');
 }
 
 

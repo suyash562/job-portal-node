@@ -38,7 +38,7 @@ export const getApplicationByIdService = async (applicationId : number) => {
 
 export const updateUserApplicationStatusService = async (applicationId : number, status : string) => {
     const notificationMessage : string = `Your application for job post with application Id ${applicationId} has been ${status} by the employeer.`;
-    const actionUrl : string = `/dashboard/component/userApplication/${applicationId}`;
+    const actionUrl : string = `/dashboard/component/user/userApplication/${applicationId}`;
 
     const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, status, notificationMessage, actionUrl);
     const application : Application = requestResult.value.application;

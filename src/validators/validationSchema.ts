@@ -93,7 +93,6 @@ export const jobSchema : any = {
         regex : /^(true|false)$/,
         error : 'Invalid active status'
     },
-    
 }
 
 export const interviewScheduleSchema : any = {

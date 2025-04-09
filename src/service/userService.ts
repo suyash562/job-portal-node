@@ -2,7 +2,7 @@ import { MailOptions } from "nodemailer/lib/json-transport";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, emailExistsRepo, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, resetPassword, updatePrimaryResume, updateResumeCount, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
+import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, emailExistsRepo, getAllRegisteredUsersForAdmin, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, resetPassword, updatePrimaryResume, updateResumeCount, updateUserAccountStatus, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
 import { applicationStatusUpdatedMailTemplate, employerAccountApprovedTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
@@ -10,7 +10,9 @@ import { RequestResult } from "../types/types";
 import { ContactNumber } from "../entities/contactNumber";
 
 const sentOtpMap : Map<string, string> = new Map();
+const timeoutMap : Map<string, NodeJS.Timeout> = new Map();
 let deleteNotVerifiedUserTimeout : NodeJS.Timeout;
+let expireSentOtpFromMapTimeout : NodeJS.Timeout;
 
 // async function d(){
 //     console.log(await bcrypt.hash('admin@123', 10));
@@ -39,6 +41,7 @@ export const registerService = async (user : any) => {
         user.role === 'employeer' ? -1 : 1,
         contactNumbers
     );
+    
     const newEmployerCompany = user.role === 'employeer' ? new EmployeerCompany(
         user.name,
         user.description,
@@ -70,12 +73,48 @@ export const sendOtpMail = async (email : string, passwordResetMail : boolean) =
     };
     await transporter.sendMail(mailOptions); 
     sentOtpMap.set(email, otp);
+    expireSentOtpFromMap(email);
     if(!passwordResetMail){
         setTimeoutForDeletingNotVerifiedUsers(email);
     }
 
     return true; 
 }
+
+export const verifyOtpService = async (email : string, otp : string, passwordResetMail : boolean) => {
+    
+    if(sentOtpMap.get(email) === otp){
+        if(!passwordResetMail){
+            clearTimeout(timeoutMap.get(email));
+            await markUserAsVerifiedService(email);
+        }
+        removeSentOtpFromMap(email);
+        return true;
+    }
+    return false;
+}
+
+export const removeSentOtpFromMap = (email : string) => {
+    sentOtpMap.delete(email);
+}
+
+export const expireSentOtpFromMap = (email : string) => {
+    expireSentOtpFromMapTimeout = setTimeout(async () => {
+        sentOtpMap.set(email , '');        
+    }, 1000 * 60 * 1);
+}
+
+export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
+    clearTimeout(timeoutMap.get(email));
+    deleteNotVerifiedUserTimeout = setTimeout(async () => {
+        if(sentOtpMap.has(email)){
+            await deleteNotVerifiedUserService(email);
+            removeSentOtpFromMap(email);            
+        }
+    }, 1000 * 60 * 2);
+    timeoutMap.set(email, deleteNotVerifiedUserTimeout);
+}
+
 
 export const sendApplicationStatusResolvedMail = async (email : string, applicationId : string ,jobPost : string, appliedDate : string, applicationStatus : string) => {
 
@@ -111,33 +150,6 @@ export const sendEmployerRequestApprovedMail = async (email : string) => {
     };
     await transporter.sendMail(mailOptions); 
     return true; 
-}
-
-export const verifyOtpService = async (email : string, otp : string, passwordResetMail : boolean) => {
-    
-    if(sentOtpMap.get(email) === otp){
-        if(!passwordResetMail){
-            clearTimeout(deleteNotVerifiedUserTimeout);
-            await markUserAsVerifiedService(email);
-        }
-        removeSentOtpFromMap(email);
-        return true;
-    }
-    return false;
-}
-
-export const removeSentOtpFromMap = (email : string) => {
-    sentOtpMap.delete(email);
-}
-
-export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
-    clearTimeout(deleteNotVerifiedUserTimeout);
-    deleteNotVerifiedUserTimeout = setTimeout(async () => {
-        if(sentOtpMap.has(email)){
-            await deleteNotVerifiedUserService(email);
-            removeSentOtpFromMap(email);
-        }
-    }, 1000 * 60 * 5);
 }
 
 export const markUserAsVerifiedService = async (email : string) => {
@@ -205,4 +217,12 @@ export const updateUserPasswordService = async (email : string, currentPassword 
 
 export const resetPasswordService = async (email : string, newPassword : string) => {
     return await resetPassword(email, newPassword);
+}
+
+export const getAllVerifiedUsersForAdminService = async () => {
+    return await getAllRegisteredUsersForAdmin();
+}
+
+export const updateUserAccountStatusService = async (email : string, status : string) => {
+    return await updateUserAccountStatus(email, status);
 }

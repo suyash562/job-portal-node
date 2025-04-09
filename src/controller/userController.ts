@@ -4,6 +4,7 @@ import {
     decreaseResumeCountAndUpdatePrimaryResumeService, 
     deleteNotVerifiedUserService, 
     emailExistsService, 
+    getAllVerifiedUsersForAdminService, 
     getNotVerifiedEmployersService, 
     getUserProfileService, 
     getUserRoleService, 
@@ -14,6 +15,7 @@ import {
     sendOtpMail, 
     updatePrimaryResumeService, 
     updateResumeCountService,
+    updateUserAccountStatusService,
     updateUserPasswordService, 
     updateUserProfileService,  
     verifyOtpService 
@@ -120,6 +122,7 @@ export const deleteUserIfNotVerifiedController = async (req : Request, res : Res
     }
 }
 
+
 export const loginController = async function(req : Request, res : Response, next : NextFunction){
     const {user} = req.body;
     try{
@@ -133,6 +136,7 @@ export const loginController = async function(req : Request, res : Response, nex
     }
 }
 
+
 export const logoutController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         res.cookie('userToken', null, {maxAge : 0});
@@ -142,6 +146,7 @@ export const logoutController = async (req : Request, res : Response, next : Nex
        next(err);
     }
 }
+
 
 export const getUserProfileController = async (req : Request, res : Response, next : NextFunction) => {
     try{
@@ -154,6 +159,7 @@ export const getUserProfileController = async (req : Request, res : Response, ne
     }
 }
 
+
 export const getNotVerifiedEmployersController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const result : RequestResult = await getNotVerifiedEmployersService();
@@ -163,6 +169,7 @@ export const getNotVerifiedEmployersController = async (req : Request, res : Res
         next(err);
     }
 }
+
 
 export const getUserRoleController = async (req : Request, res : Response, next : NextFunction) => {
     try{
@@ -174,6 +181,7 @@ export const getUserRoleController = async (req : Request, res : Response, next 
         next(err);
     }
 }
+
 
 export const approveEmployerRequestController = async (req : Request, res : Response, next : NextFunction) => {
     try{
@@ -187,6 +195,7 @@ export const approveEmployerRequestController = async (req : Request, res : Resp
     }
 }
 
+
 export const getResumeByIdController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
         const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;    
@@ -198,6 +207,7 @@ export const getResumeByIdController = async (req : Request, res : Response, nex
         next(err);
     }
 }
+
 
 export const uploadResumeController = async (req : Request, res : Response, next : NextFunction) => {
     const user : User = req.body;
@@ -213,6 +223,7 @@ export const uploadResumeController = async (req : Request, res : Response, next
     }
 }
 
+
 export const updatePrimaryResumeController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
         const {user, resumeNumber} : {user : User, resumeNumber : number} = req.body;
@@ -223,6 +234,7 @@ export const updatePrimaryResumeController = async (req : Request, res : Respons
         next(err);
     }
 }
+
 
 export const deleteResumeController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
@@ -244,6 +256,7 @@ export const deleteResumeController = async (req : Request, res : Response, next
     }
 }
 
+
 export const updateUserProfileController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
         const {userProfile, profileId} : {userProfile : Partial<UserProfile>, profileId : number} = req.body;
@@ -254,6 +267,7 @@ export const updateUserProfileController = async (req : Request, res : Response,
         next(err);
     }
 }
+
 
 export const updateUserPasswordController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
@@ -275,9 +289,33 @@ export const updateUserPasswordController = async (req : Request, res : Response
     }
 }
 
+
 export const getTotalNumberOfJobsController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
         const requestResult : RequestResult = await getTotalNumberOfJobsService();
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+
+export const getAllRegisteredUsersForAdminController = async (req : Request, res : Response, next : NextFunction) => {
+    try{         
+        const requestResult : RequestResult = await getAllVerifiedUsersForAdminService();
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+export const updateUserAccountStatusController = async (req : Request, res : Response, next : NextFunction) => {
+    try{         
+        const email = req.params['email'];
+        const status = req.params['status'];
+        const requestResult : RequestResult = await updateUserAccountStatusService(email, status);
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){

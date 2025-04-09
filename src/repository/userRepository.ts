@@ -40,7 +40,7 @@ export const registerRepo = async (user : User) => {
     })
     
     if(contactNumberAlreadyExists){
-        throw new GlobalError(403, 'Contact number already exists.');
+        throw new GlobalError(403, 'Make sure your contact number is valid');
     }
 
     
@@ -129,13 +129,31 @@ export const getNotVerifiedEmployers = async () => {
         .where({
             isVerifiedByAdmin : false
         })
+        .andWhere({
+            role : 'employeer'
+        })
         .getMany();        
     
     if(result){
         return new RequestResult(200, 'success', result);
     }
     throw new GlobalError(404, 'Failed to get employeer details');
+} 
 
+
+export const getAllRegisteredUsersForAdmin = async () => {
+    
+    const result = await userRepository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.profile", "profile")
+        .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
+        .where("role = :userRole or role = :employeerRole", {userRole : 'user', employeerRole : 'employeer'})
+        .getMany();        
+    
+    if(result){
+        return new RequestResult(200, 'success', result);
+    }
+    throw new GlobalError(404, 'Failed to get users');
 } 
 
 
@@ -271,46 +289,60 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
     try{
         const contactNumbers = userProfile.contactNumbers!;
         userProfile.contactNumbers = undefined;
-        
-        console.log(contactNumbers);
 
         const existingUserProfile = await queryRunner.manager
             .getRepository(UserProfile).findOneBy({
                 id : profileId
             })
         
+        if(!existingUserProfile){
+            throw new GlobalError(403, 'Profile not found.');
+        }
+
+        // if(existingUserProfile.contactNumbers[0] !== contactNumbers[0]){  
+        //     const contactNumberAlreadyExists = await contactNumberRepository.findOne({
+        //         where : [
+        //             {number : contactNumbers[0].number}, {number : contactNumbers[1]?.number}
+        //         ]
+        //     });
+            
+        //     if(contactNumberAlreadyExists){
+        //         throw new GlobalError(403, 'Make sure your contact number is valid');
+        //     }
+        // }
+
         const result = await queryRunner.manager
             .getRepository(UserProfile)
             .update({id : profileId}, userProfile);
 
-        const updateContact1Result = await queryRunner.manager
-            .getRepository(ContactNumber)
-            .createQueryBuilder('contactNumber')
-            .update()
-            .set({number : contactNumbers![0].number})
-            .where({number : existingUserProfile?.contactNumbers![0].number})
-            .execute();
+        // const updateContact1Result = await queryRunner.manager
+        //     .getRepository(ContactNumber)
+        //     .createQueryBuilder('contactNumber')
+        //     .update()
+        //     .set({number : contactNumbers![0].number})
+        //     .where({number : existingUserProfile?.contactNumbers![0].number})
+        //     .execute();
         
-        if(contactNumbers[1]){
-            var updateContact2Result = await queryRunner.manager
-                .getRepository(ContactNumber)
-                .createQueryBuilder('contactNumber')
-                .update()
-                .set({number : contactNumbers[1].number})
-                .where({number : existingUserProfile?.contactNumbers[1].number})
-                .execute();
-        }
+        // if(contactNumbers[1]){
+        //     var updateContact2Result = await queryRunner.manager
+        //         .getRepository(ContactNumber)
+        //         .createQueryBuilder('contactNumber')
+        //         .update()
+        //         .set({number : contactNumbers[1].number})
+        //         .where({number : existingUserProfile?.contactNumbers[1].number})
+        //         .execute();
+        // }
         
         userProfile.contactNumbers = contactNumbers;
        
-        if(result.affected == 0 || updateContact1Result.affected == 0){
+        if(result.affected == 0){
             queryRunner.rollbackTransaction();
             throw new GlobalError(404, 'Failed to update profile');
         }
-        if(contactNumbers[1] && updateContact2Result!.affected == 0){
-            queryRunner.rollbackTransaction();
-            throw new GlobalError(404, 'Failed to update profile');
-        }
+        // if(contactNumbers[1] && updateContact2Result!.affected == 0){
+        //     queryRunner.rollbackTransaction();
+        //     throw new GlobalError(404, 'Failed to update profile');
+        // }
         queryRunner.commitTransaction();
         return new RequestResult(200, 'Profile has been updated', userProfile);
     }
@@ -365,4 +397,23 @@ export const resetPassword = async (email : string, newPassword : string) => {
         return new RequestResult(200, 'Password reset', true);
     }
     throw new GlobalError(401, 'Failed to reset password');
+} 
+
+
+export const updateUserAccountStatus = async (email : string, status : string) => {
+    
+    const result = await userRepository
+    .update(
+        {
+            email : email,
+        },
+        {
+            isVerifiedByAdmin : status === 'Activate' ? true : false,
+        }
+    );
+    
+    if(result.affected != 0){   
+        return new RequestResult(200, 'Account Status Updated', true);
+    }
+    throw new GlobalError(401, 'Failed to update status');
 } 
