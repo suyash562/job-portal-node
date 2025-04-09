@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, forgotPasswordController, getAllRegisteredUsersForAdminController, getNotVerifiedEmployersController, getResumeByIdController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserAccountStatusController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
+import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, forgotPasswordController, getAllRegisteredUsersForAdminController, getNotVerifiedEmployersController, getResumeByIdController, getUserInfoForAdminController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserAccountStatusController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -51,7 +51,7 @@ const multerUpload = multer({
 const userRouter : Router = Router();
 
 userRouter.post('/register', multerUpload.single('resume'), validateUserData, registerController);
-userRouter.post('/login', validate(['email','password'], userSchema, 'user'), loginController);
+userRouter.post('/login', validate(['email'], userSchema, 'user'), loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/forgot-password/:userEmail', forgotPasswordController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
@@ -68,7 +68,8 @@ userRouter.post('/verify-otp', verifyOtpController);
 userRouter.post('/resend-otp', resendOtpController);
 userRouter.post('/delete/not-verified', deleteUserIfNotVerifiedController);
 userRouter.post('/reset-password', resetPasswordController);
-userRouter.get('/verified-users', getAllRegisteredUsersForAdminController);
-userRouter.get('/update-account-status/:email/:status', updateUserAccountStatusController);
+userRouter.get('/verified-users', authenticateUserCredentials, getAllRegisteredUsersForAdminController);
+userRouter.get('/update-account-status/:email/:status', authenticateUserCredentials, updateUserAccountStatusController);
+userRouter.get('/info-for-admin', getUserInfoForAdminController);
 
 export default userRouter;

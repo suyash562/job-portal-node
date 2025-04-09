@@ -26,7 +26,6 @@ export const AppDataSource = new DataSource({
         ContactNumber
     ],
     synchronize : true,
-    // logging : true,
     options : {
         encrypt : true,
         trustServerCertificate : true,

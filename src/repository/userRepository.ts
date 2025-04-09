@@ -42,7 +42,6 @@ export const registerRepo = async (user : User) => {
     if(contactNumberAlreadyExists){
         throw new GlobalError(403, 'Make sure your contact number is valid');
     }
-
     
     user.password = await generatePasswordHash(user.password);
     await userRepository.save(user);
@@ -55,15 +54,20 @@ export const vefiryUserCredentials = async (user : Partial<User>) => {
     const result = await userRepository.findOne({
         where : {
             email : user.email,
-            isVerifiedByAdmin : true
         }
     });
     
     if(result && await comparePasswordWithHash(user.password!, result.password)){
-        return new RequestResult(200, 'Logged In', result);
+        if(result?.isVerifiedByAdmin === true){
+            return new RequestResult(200, 'Logged In', result);
+        }
+        else{
+            throw new GlobalError(401, 'Account not yet not verified by admin');
+        }        
+    }
+    else{
+        throw new GlobalError(401, 'Incorrect email or password');
     }        
-    throw new GlobalError(401, 'Incorrect email or password');
-
 } 
 
 
@@ -416,4 +420,18 @@ export const updateUserAccountStatus = async (email : string, status : string) =
         return new RequestResult(200, 'Account Status Updated', true);
     }
     throw new GlobalError(401, 'Failed to update status');
+} 
+
+export const getUserInfoForAdmin = async () => {
+    
+    const result = await userRepository
+        .createQueryBuilder("user")
+        .select("user.role, count(user.role) as count")
+        .groupBy("user.role")
+        .getRawMany();        
+
+    if(result){
+        return new RequestResult(200, 'success', result);
+    }
+    throw new GlobalError(404, 'Failed to get users');
 } 

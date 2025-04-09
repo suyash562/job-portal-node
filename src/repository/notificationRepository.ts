@@ -21,7 +21,6 @@ export const getNotificationsOfCurrentUserRepo = async (user : User) => {
         });   
         return new RequestResult(200, 'success', {notifications : getUser.notifications, newNotificationsCount : getUser.newNotifications});
     }
-    console.log(user);
     
     throw new GlobalError(500, 'Failed to load notifications');
 }

@@ -6,6 +6,7 @@ import {
     emailExistsService, 
     getAllVerifiedUsersForAdminService, 
     getNotVerifiedEmployersService, 
+    getUserInfoForAdminService, 
     getUserProfileService, 
     getUserRoleService, 
     loginService,  
@@ -26,6 +27,11 @@ import jwt from 'jsonwebtoken';
 import { GlobalError, RequestResult } from "../types/types";
 import fs from 'fs';
 import { getTotalNumberOfJobsService } from "../service/jobService";
+import { UserDTO } from "../dto/user.dto";
+import { UserProfileDTO } from "../dto/userProfile.dto";
+import { EmployeerCompanyDTO } from "../dto/company.dto";
+import { ContactNumberDTO } from "../dto/contactNumbers.dto";
+import { ContactNumber } from "../entities/contactNumber";
 
 
 function renameFiles(email : string, deletedResumeNumber : number){
@@ -46,9 +52,18 @@ function renameFiles(email : string, deletedResumeNumber : number){
 }
 
 export const registerController = async (req : Request, res : Response, next : NextFunction) => {
-    try{
-        const user : User & UserProfile = req.body;       
-        const result : RequestResult = await registerService(user);        
+    try{        
+        const user : any = req.body;     
+        
+        const userDTO = new UserDTO(user.email, user.password, user.role);
+        const userProfileDTO = new UserProfileDTO(user.firstName, user.lastName, user.address);
+        const employerCompanyDTO = new EmployeerCompanyDTO(user.name, user.description, user.industry, user.companySize, user.website, user.location,);
+
+        const contactNumbers = [new ContactNumber(user.contactNumber1)];
+        user.contactNumber2 ? contactNumbers.push( new ContactNumber(user.contactNumber2)) : null;
+
+
+        const result : RequestResult = await registerService(userDTO, userProfileDTO, employerCompanyDTO, contactNumbers);        
         res.status(result.statusCode).send(result); 
     }
     catch(err){
@@ -59,7 +74,6 @@ export const registerController = async (req : Request, res : Response, next : N
 export const verifyOtpController = async (req : Request, res : Response, next : NextFunction) => {
     try{     
         const {email, otp, passwordReset} = req.body;
-        
         if(await verifyOtpService(email, otp, passwordReset)){ 
             res.status(200).send(true); 
         }
@@ -75,7 +89,7 @@ export const verifyOtpController = async (req : Request, res : Response, next : 
 export const resendOtpController = async (req : Request, res : Response, next : NextFunction) => {
     try{     
         const {email, passwordReset} = req.body;
-        const result : RequestResult = await emailExistsService(email);
+        emailExistsService(email);
         await sendOtpMail(email, passwordReset);
         res.status(200).send({message : 'OTP resent'});
     }
@@ -311,11 +325,23 @@ export const getAllRegisteredUsersForAdminController = async (req : Request, res
     }
 }
 
+
 export const updateUserAccountStatusController = async (req : Request, res : Response, next : NextFunction) => {
     try{         
         const email = req.params['email'];
         const status = req.params['status'];
         const requestResult : RequestResult = await updateUserAccountStatusService(email, status);
+        res.status(requestResult.statusCode).send(requestResult);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+
+export const getUserInfoForAdminController = async (req : Request, res : Response, next : NextFunction) => {
+    try{         
+        const requestResult : RequestResult = await getUserInfoForAdminService();
         res.status(requestResult.statusCode).send(requestResult);
     }
     catch(err){

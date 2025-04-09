@@ -14,7 +14,6 @@ export const addInterviewScheduleService = async (applicationId : number, interv
     const requestResult : RequestResult = await addInterviewScheduleRepo(applicationId, interviewSchedule, notificationMessage, actionUrl);
     const application : Application = requestResult.value.application;
     
-    sendNotificationToActiveClient(requestResult.value.application.user.email, requestResult.value.savedNotification);
     await sendInterviewScheduledMail(
         application.user.email,
         application.job.title,
@@ -22,6 +21,7 @@ export const addInterviewScheduleService = async (applicationId : number, interv
         interviewSchedule.interviewDate.toString().split('T')[0],
         interviewSchedule.interviewTime.toString()
     );
+    sendNotificationToActiveClient(requestResult.value.application.user.email, requestResult.value.savedNotification);
     return requestResult;
 }
 

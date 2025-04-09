@@ -1,13 +1,11 @@
 import { AppDataSource } from "../config/database"
 import { Application } from "../entities/application";
 import { InterviewSchedule } from "../entities/interviewSchedule";
-import { Job } from "../entities/job";
 import { GlobalError, RequestResult } from "../types/types";
 import { updateUserApplicationStatusRepo } from "./applicationRepository";
 
 const applicationRepository = AppDataSource.getRepository(Application);
 const interviewScheduleRepository = AppDataSource.getRepository(InterviewSchedule);
-
 
 
 export const addInterviewScheduleRepo = async (applicationId : number, interviewSchedule : InterviewSchedule, notificationMessage : string, actionUrl : string) => {
@@ -29,7 +27,7 @@ export const addInterviewScheduleRepo = async (applicationId : number, interview
             interviewSchedule.meetingUrl ?? '',
             interviewSchedule.address ?? '',
             interviewSchedule.instructions ?? ''
-        ) 
+        ); 
         
         const requestResult : RequestResult = await updateUserApplicationStatusRepo(applicationId, 'Interview', notificationMessage, actionUrl);
         

@@ -2,12 +2,16 @@ import { MailOptions } from "nodemailer/lib/json-transport";
 import { EmployeerCompany } from "../entities/employeerCompany";
 import { User } from "../entities/user";
 import { UserProfile } from "../entities/userProfile";
-import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, emailExistsRepo, getAllRegisteredUsersForAdmin, getNotVerifiedEmployers, getUserProfile, getUserRole, markUserAsVerified, registerRepo, resetPassword, updatePrimaryResume, updateResumeCount, updateUserAccountStatus, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
+import { approveEmployerRequest, decreaseResumeCountAndUpdatePrimaryResume, deleteNotVerifiedUser, emailExistsRepo, getAllRegisteredUsersForAdmin, getNotVerifiedEmployers, getUserInfoForAdmin, getUserProfile, getUserRole, markUserAsVerified, registerRepo, resetPassword, updatePrimaryResume, updateResumeCount, updateUserAccountStatus, updateUserPassword, updateUserProfile, vefiryUserCredentials } from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import { transporter } from "../config/mail";
 import { applicationStatusUpdatedMailTemplate, employerAccountApprovedTemplate, interviewScheduledMailTemplate, otpMailTemplate } from "../templates/mailTemplates";
 import { RequestResult } from "../types/types";
 import { ContactNumber } from "../entities/contactNumber";
+import { UserDTO } from "../dto/user.dto";
+import { UserProfileDTO } from "../dto/userProfile.dto";
+import { EmployeerCompanyDTO } from "../dto/company.dto";
+import { ContactNumberDTO } from "../dto/contactNumbers.dto";
 
 const sentOtpMap : Map<string, string> = new Map();
 const timeoutMap : Map<string, NodeJS.Timeout> = new Map();
@@ -19,36 +23,35 @@ let expireSentOtpFromMapTimeout : NodeJS.Timeout;
 // }
 // d()
 
-export const registerService = async (user : any) => {
+export const registerService = async (userDTO : UserDTO, userProfileDTO : UserProfileDTO, employerCompanyDTO : EmployeerCompanyDTO ,contactNumbers : ContactNumber[]) => {
+    
     
     const newUser = new User(
-        user.email,
-        user.password,
-        user.role,
+        userDTO.email,
+        userDTO.password,
+        userDTO.role,
         0,
         false,
-        user.role === 'user' ? true : false,
+        userDTO.role === 'user' ? true : false,
     );
 
-    const contactNumbers = [new ContactNumber(user.contactNumber1)];
-    user.contactNumber2 ? contactNumbers.push( new ContactNumber(user.contactNumber2)) : null;
-
+    
     const newUserProfile = new UserProfile(
-        user.firstName,
-        user.lastName,
-        user.address,
-        user.role === 'employeer' ? -1 : 1,
-        user.role === 'employeer' ? -1 : 1,
+        userProfileDTO.firstName,
+        userProfileDTO.lastName,
+        userProfileDTO.address,
+        userDTO.role === 'employeer' ? -1 : 1,
+        userDTO.role === 'employeer' ? -1 : 1,
         contactNumbers
     );
     
-    const newEmployerCompany = user.role === 'employeer' ? new EmployeerCompany(
-        user.name,
-        user.description,
-        user.industry,
-        user.companySize,
-        user.website,
-        user.location,
+    const newEmployerCompany = userDTO.role === 'employeer' ? new EmployeerCompany(
+        employerCompanyDTO.name,
+        employerCompanyDTO.description,
+        employerCompanyDTO.industry,
+        employerCompanyDTO.companySize,
+        employerCompanyDTO.website,
+        employerCompanyDTO.location,
         0
     ) : null;
 
@@ -56,7 +59,7 @@ export const registerService = async (user : any) => {
     if(newEmployerCompany) newUser.employeerCompany = newEmployerCompany;
     
     const registrationResult : RequestResult = await registerRepo(newUser);
-    await sendOtpMail(user.email, false);
+    await sendOtpMail(userDTO.email, false);
     return registrationResult;
 }
 
@@ -66,7 +69,7 @@ export const sendOtpMail = async (email : string, passwordResetMail : boolean) =
     const otp : string = Math.random().toString().split('.')[1].slice(0,6);
     
     const mailOptions : MailOptions = {
-        from: `SnapHire ${process.env.GMAIL_USER}`,
+        from: `Snap Hire ${process.env.GMAIL_USER}`,
         to: email,
         subject: "OTP for Snap Hire",
         html : otpMailTemplate(otp),
@@ -101,7 +104,7 @@ export const removeSentOtpFromMap = (email : string) => {
 export const expireSentOtpFromMap = (email : string) => {
     expireSentOtpFromMapTimeout = setTimeout(async () => {
         sentOtpMap.set(email , '');        
-    }, 1000 * 60 * 1);
+    }, 1000 * 60 * 3);
 }
 
 export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
@@ -111,7 +114,7 @@ export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
             await deleteNotVerifiedUserService(email);
             removeSentOtpFromMap(email);            
         }
-    }, 1000 * 60 * 2);
+    }, 1000 * 60 * 6);
     timeoutMap.set(email, deleteNotVerifiedUserTimeout);
 }
 
@@ -119,7 +122,7 @@ export const setTimeoutForDeletingNotVerifiedUsers = (email : string) => {
 export const sendApplicationStatusResolvedMail = async (email : string, applicationId : string ,jobPost : string, appliedDate : string, applicationStatus : string) => {
 
     const mailOptions : MailOptions = {
-        from: `SnapHire ${process.env.GMAIL_USER}`,
+        from: `Snap Hire ${process.env.GMAIL_USER}`,
         to: email,
         subject: "Application accepted",
         html : applicationStatusUpdatedMailTemplate(applicationId, jobPost, appliedDate, applicationStatus),
@@ -131,7 +134,7 @@ export const sendApplicationStatusResolvedMail = async (email : string, applicat
 export const sendInterviewScheduledMail = async (email : string, jobPost : string, applicationId : string, scheduleDate : string, scheduleTime : string) => {
 
     const mailOptions : MailOptions = {
-        from: `SnapHire ${process.env.GMAIL_USER}`,
+        from: `Snap Hire ${process.env.GMAIL_USER}`,
         to: email,
         subject: "Interview scheduled",
         html : interviewScheduledMailTemplate(jobPost, applicationId, scheduleDate, scheduleTime),
@@ -143,7 +146,7 @@ export const sendInterviewScheduledMail = async (email : string, jobPost : strin
 export const sendEmployerRequestApprovedMail = async (email : string) => {
 
     const mailOptions : MailOptions = {
-        from: `SnapHire ${process.env.GMAIL_USER}`,
+        from: `Snap Hire ${process.env.GMAIL_USER}`,
         to: email,
         subject: "Account Verified",
         html : employerAccountApprovedTemplate(),
@@ -194,7 +197,6 @@ export const updateResumeCountService = async (email : string, count :number) =>
 
 export const approveEmployerRequestService = async (email : string) => {
     const requestResult : RequestResult =  await approveEmployerRequest(email);
-    console.log(email);
     await sendEmployerRequestApprovedMail(email);
     return requestResult;
 }
@@ -225,4 +227,8 @@ export const getAllVerifiedUsersForAdminService = async () => {
 
 export const updateUserAccountStatusService = async (email : string, status : string) => {
     return await updateUserAccountStatus(email, status);
+}
+
+export const getUserInfoForAdminService = async () => {
+    return await getUserInfoForAdmin();
 }

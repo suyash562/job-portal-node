@@ -34,13 +34,13 @@ export const applyForJobRepo = async (user : User, jobId : number) => {
 export const getApplicationByIdRepo = async (applicationId : number) => {
     
     const application : Application | null= await applicationRepository
-    .createQueryBuilder('application')
-    .leftJoinAndSelect("application.user", "user")
-    .leftJoinAndSelect("user.profile", "profile")
-    .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
-    .leftJoinAndSelect("application.job", "job")
-    .where("application.id = :id", {id : applicationId})
-    .getOne();
+        .createQueryBuilder('application')
+        .leftJoinAndSelect("application.user", "user")
+        .leftJoinAndSelect("user.profile", "profile")
+        .leftJoinAndSelect("profile.contactNumbers", "contactNumbers")
+        .leftJoinAndSelect("application.job", "job")
+        .where("application.id = :id", {id : applicationId})
+        .getOne();
     
     if(application){
         return new RequestResult(200, 'Success', application);
@@ -84,6 +84,7 @@ export const updateUserApplicationStatusRepo = async (applicationId : number, st
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try{
+        
         const updateResult : UpdateResult = await queryRunner.manager
             .getRepository(Application)
             .createQueryBuilder("application")
@@ -98,11 +99,11 @@ export const updateUserApplicationStatusRepo = async (applicationId : number, st
             .leftJoinAndSelect("application.user", "user")
             .where("application.id = :applicationId", {applicationId : applicationId})
             .getOne(); 
-        
-        if( updateResult.affected == 0 || !application){
-            throw new GlobalError(404, "Failed to update application status");
-        }
-        
+            
+            if( updateResult.affected == 0 || !application){
+                throw new GlobalError(404, "Failed to update application status");
+            }
+            
         const newNotification : Notification = new Notification(notificationMessage, actionUrl, application.user, new Date() ,false);
         const savedNotification = await queryRunner.manager.getRepository(Notification).save(newNotification);
         

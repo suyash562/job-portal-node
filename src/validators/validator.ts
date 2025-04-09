@@ -19,7 +19,11 @@ export const validateUserData = (req : Request, res : Response, next : NextFunct
             'role'
         ];
         for (let key of keys) {
-            if((userSchema[key].regex && !userSchema[key].regex.test(user[key])) || user[key] === '' || user[key] === undefined){
+            if(
+                (userSchema[key].regex && !userSchema[key].regex.test(user[key])) || 
+                user[key] === '' || 
+                user[key] === undefined
+            ){
                 throw new GlobalError(400, userSchema[key].error);
             }
         }
@@ -77,7 +81,7 @@ export const validate = (keys : string[], schema : any, dataType : string) => {
 
             for (let key of keys) {
                 if(schema[key].optional){
-                    if(data[key] === '' || data[key] === undefined){
+                    if(data[key] === '' || data[key] === undefined || data[key] === null){
                         continue;
                     }
                 }
@@ -95,6 +99,7 @@ export const validate = (keys : string[], schema : any, dataType : string) => {
         }
     }
 }
+
 
 export const validateContactNumbers = (schema : any, dataType : string) => {
     
@@ -118,6 +123,7 @@ export const validateContactNumbers = (schema : any, dataType : string) => {
     }
 }
 
+
 export const validateDate = (dataType : string, validationVariableName : string) => {
     
     return (req : Request, res : Response, next : NextFunction) => {    
@@ -140,6 +146,7 @@ export const validateDate = (dataType : string, validationVariableName : string)
         }
     }
 }
+
 
 export const validateTime = (dataType : string, validationVariableName : string) => {
     
@@ -166,6 +173,7 @@ export const validateTime = (dataType : string, validationVariableName : string)
         }
     }
 }
+
 
 export const validateSalaryRange = (dataType : string, validationVariableName : string) => {
     

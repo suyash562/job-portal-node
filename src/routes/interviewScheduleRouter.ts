@@ -9,7 +9,6 @@ const interviewScheduleRouter : Router = Router();
 
 interviewScheduleRouter.post(
     '/add',
-    authenticateUserCredentials,
     validate([
         'interviewType',
         'meetingUrl',
@@ -18,6 +17,7 @@ interviewScheduleRouter.post(
     ], interviewScheduleSchema, 'interviewSchedule'),
     validateDate('interviewSchedule', 'interviewDate'),
     validateTime('interviewSchedule', 'interviewTime'),
+    authenticateUserCredentials,
     addInterviewScheduleController
 );
     

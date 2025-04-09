@@ -9,7 +9,7 @@ export class Notification{
     @Column({type : "varchar"})
     message : string;
 
-    @Column({type : 'varchar', length : 40})
+    @Column({type : 'varchar', length : 100})
     actionUrl : string;
     
     @Column({type : 'datetime'})

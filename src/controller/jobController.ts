@@ -4,10 +4,10 @@ import { RequestResult } from "../types/types";
 import { Job } from "../entities/job";
 import { addJobService, deleteJobService, getAllJobsService, getEmployeerPostedJobsService, getJobByIdService, updateJobService } from "../service/jobService";
 
+
 export const addJobController = async (req : Request, res : Response, next : NextFunction) => {
     try{
         const {user, job} : {user : User, job : Job} = req.body;
-        
         const result : RequestResult = await addJobService(user, job);
         res.status(result.statusCode).send(result);
     }
