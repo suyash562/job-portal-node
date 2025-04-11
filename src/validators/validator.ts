@@ -32,6 +32,9 @@ export const validateUserData = (req : Request, res : Response, next : NextFunct
             if(!userSchema['contactNumber1'].regex.test(user['contactNumber2'])){
                 throw new GlobalError(400, userSchema['contactNumber1'].error);
             }
+            if(user['contactNumber1'] === user['contactNumber2']){
+                throw new GlobalError(400, userSchema['contactNumber1'].error);
+            }
         }
 
         if(user.role != 'user' && user.role != 'employeer'){

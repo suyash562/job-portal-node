@@ -16,8 +16,6 @@ webSocketServer.on('connection', (ws, req) => {
 });
 
 
-export const sendNotificationToActiveClient = (email : string, savedNotification : Notification) => {
-    console.log(email, savedNotification);
-    
+export const sendNotificationToActiveClient = (email : string, savedNotification : Notification) => {    
     webSocketClients.get(email)?.send(JSON.stringify(savedNotification));
 }

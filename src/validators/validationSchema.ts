@@ -19,7 +19,7 @@ export const userSchema : any = {
     },
     contactNumber1 :  {
         regex : /^[6-9]\d{9}$/,
-        error : 'Invalid phone number'
+        error : 'Invalid contact number'
     },
     address :  {
         regex : /^.{2,50}$/,

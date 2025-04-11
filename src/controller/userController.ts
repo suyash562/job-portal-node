@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { 
     approveEmployerRequestService,
-    decreaseResumeCountAndUpdatePrimaryResumeService, 
-    deleteNotVerifiedUserService, 
+    decreaseResumeCountAndUpdatePrimaryResumeService,  
     emailExistsService, 
     getAllVerifiedUsersForAdminService, 
     getNotVerifiedEmployersService, 
@@ -124,24 +123,24 @@ export const resetPasswordController = async (req : Request, res : Response, nex
 }
 
 
-export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
-    try{     
-        const {email} = req.body;
-        await deleteNotVerifiedUserService(email);
-        removeSentOtpFromMap(email);
-        res.status(200).send(true);
-    }
-    catch(err){
-        next(err);
-    }
-}
+// export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
+//     try{     
+//         const {email} = req.body;
+//         await deleteNotVerifiedUserService(email);
+//         removeSentOtpFromMap(email);
+//         res.status(200).send(true);
+//     }
+//     catch(err){
+//         next(err);
+//     }
+// }
 
 
 export const loginController = async function(req : Request, res : Response, next : NextFunction){
     const {user} = req.body;
     try{
         const result : RequestResult = await loginService(user);
-        const userToken : string = jwt.sign({email : result.value.email, password : result.value.password}, process.env.KEY!, {expiresIn : "2h"});
+        const userToken : string = jwt.sign({email : result.value.email, password : result.value.password, role : result.value.role}, process.env.KEY!, {expiresIn : "2h"});
         res.cookie("userToken" ,userToken, {maxAge : 1000*60*60, httpOnly : true, secure : true, sameSite : 'lax'});            
         res.status(200).send(result);
     }

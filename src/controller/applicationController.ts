@@ -73,6 +73,7 @@ export const updateUserApplicationStatusController = async (req : Request, res :
         if(!Number.isInteger(applicationId)){
             throw new GlobalError(400, 'Bad Request');
         }
+        if(status){}
         const result : RequestResult = await updateUserApplicationStatusService(applicationId, status);
         res.status(result.statusCode).send(result);
     }

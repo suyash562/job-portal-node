@@ -303,39 +303,10 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
             throw new GlobalError(403, 'Profile not found.');
         }
 
-        // if(existingUserProfile.contactNumbers[0] !== contactNumbers[0]){  
-        //     const contactNumberAlreadyExists = await contactNumberRepository.findOne({
-        //         where : [
-        //             {number : contactNumbers[0].number}, {number : contactNumbers[1]?.number}
-        //         ]
-        //     });
-            
-        //     if(contactNumberAlreadyExists){
-        //         throw new GlobalError(403, 'Make sure your contact number is valid');
-        //     }
-        // }
-
         const result = await queryRunner.manager
             .getRepository(UserProfile)
             .update({id : profileId}, userProfile);
 
-        // const updateContact1Result = await queryRunner.manager
-        //     .getRepository(ContactNumber)
-        //     .createQueryBuilder('contactNumber')
-        //     .update()
-        //     .set({number : contactNumbers![0].number})
-        //     .where({number : existingUserProfile?.contactNumbers![0].number})
-        //     .execute();
-        
-        // if(contactNumbers[1]){
-        //     var updateContact2Result = await queryRunner.manager
-        //         .getRepository(ContactNumber)
-        //         .createQueryBuilder('contactNumber')
-        //         .update()
-        //         .set({number : contactNumbers[1].number})
-        //         .where({number : existingUserProfile?.contactNumbers[1].number})
-        //         .execute();
-        // }
         
         userProfile.contactNumbers = contactNumbers;
        
@@ -343,10 +314,7 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
             queryRunner.rollbackTransaction();
             throw new GlobalError(404, 'Failed to update profile');
         }
-        // if(contactNumbers[1] && updateContact2Result!.affected == 0){
-        //     queryRunner.rollbackTransaction();
-        //     throw new GlobalError(404, 'Failed to update profile');
-        // }
+
         queryRunner.commitTransaction();
         return new RequestResult(200, 'Profile has been updated', userProfile);
     }

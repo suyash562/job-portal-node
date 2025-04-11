@@ -11,7 +11,7 @@ import { ContactNumber } from "../entities/contactNumber";
 import { UserDTO } from "../dto/user.dto";
 import { UserProfileDTO } from "../dto/userProfile.dto";
 import { EmployeerCompanyDTO } from "../dto/company.dto";
-import { ContactNumberDTO } from "../dto/contactNumbers.dto";
+
 
 const sentOtpMap : Map<string, string> = new Map();
 const timeoutMap : Map<string, NodeJS.Timeout> = new Map();

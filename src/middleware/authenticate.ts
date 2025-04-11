@@ -15,7 +15,6 @@ export const authenticateUserCredentials = async (req : Request, res : Response,
         }
     }
     catch(err){
-        console.log(err);
         res.sendStatus(401);
     }
 }

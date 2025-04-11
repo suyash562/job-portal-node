@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveEmployerRequestController, deleteResumeController, deleteUserIfNotVerifiedController, forgotPasswordController, getAllRegisteredUsersForAdminController, getNotVerifiedEmployersController, getResumeByIdController, getUserInfoForAdminController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserAccountStatusController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
+import { approveEmployerRequestController, deleteResumeController, forgotPasswordController, getAllRegisteredUsersForAdminController, getNotVerifiedEmployersController, getResumeByIdController, getUserInfoForAdminController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserAccountStatusController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
@@ -7,6 +7,7 @@ import fs from 'fs';
 import { validate, validateUserData } from "../validators/validator";
 import { userSchema } from "../validators/validationSchema";
 import { validateParams } from "../validators/paramsValidator";
+import { verifyRole } from "../middleware/roleVerification";
 
 
 function getResumesCount(email : string) : string {
@@ -55,21 +56,25 @@ userRouter.post('/login', validate(['email'], userSchema, 'user'), loginControll
 userRouter.get('/logout', logoutController);
 userRouter.get('/forgot-password/:userEmail', forgotPasswordController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
-userRouter.get('/employerDetails', authenticateUserCredentials, getNotVerifiedEmployersController);
-userRouter.get('/approve-employer/:employerEmail', authenticateUserCredentials, approveEmployerRequestController);
 userRouter.post('/userProfile/update', validate(['firstName','lastName','address'], userSchema, 'userProfile'), authenticateUserCredentials, updateUserProfileController);
 userRouter.get('/role', authenticateUserCredentials, getUserRoleController);
-userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, validateParams(['resumeNumber']), getResumeByIdController);
-userRouter.post('/resume/upload', authenticateUserCredentials, multerUpload.single('resume'), uploadResumeController);
-userRouter.post('/resume/updatePrimary', authenticateUserCredentials, updatePrimaryResumeController);
-userRouter.post('/resume/delete', authenticateUserCredentials, deleteResumeController);
 userRouter.post('/password/update', authenticateUserCredentials, updateUserPasswordController);
 userRouter.post('/verify-otp', verifyOtpController);
 userRouter.post('/resend-otp', resendOtpController);
-userRouter.post('/delete/not-verified', deleteUserIfNotVerifiedController);
 userRouter.post('/reset-password', resetPasswordController);
-userRouter.get('/verified-users', authenticateUserCredentials, getAllRegisteredUsersForAdminController);
-userRouter.get('/update-account-status/:email/:status', authenticateUserCredentials, updateUserAccountStatusController);
-userRouter.get('/info-for-admin', getUserInfoForAdminController);
+userRouter.get('/resume/:resumeNumber', authenticateUserCredentials, validateParams(['resumeNumber']), getResumeByIdController);
+
+userRouter.post('/resume/upload', authenticateUserCredentials, verifyRole('user'), multerUpload.single('resume'), uploadResumeController);
+userRouter.post('/resume/updatePrimary', authenticateUserCredentials, verifyRole('user'), updatePrimaryResumeController);
+userRouter.post('/resume/delete', authenticateUserCredentials, verifyRole('user'), deleteResumeController);
+
+userRouter.get('/verified-users', authenticateUserCredentials, verifyRole('admin'), getAllRegisteredUsersForAdminController);
+userRouter.get('/info-for-admin', authenticateUserCredentials, verifyRole('admin'), getUserInfoForAdminController);
+userRouter.get('/employerDetails', authenticateUserCredentials, verifyRole('admin'), getNotVerifiedEmployersController);
+userRouter.get('/approve-employer/:employerEmail', authenticateUserCredentials, verifyRole('admin'), approveEmployerRequestController);
+userRouter.get('/update-account-status/:email/:status', authenticateUserCredentials, verifyRole('admin'), updateUserAccountStatusController);
 
 export default userRouter;
+
+
+// userRouter.post('/delete/not-verified', deleteUserIfNotVerifiedController);
