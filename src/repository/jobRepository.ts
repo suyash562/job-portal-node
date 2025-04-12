@@ -36,11 +36,10 @@ export const getEmployeerPostedJobsRepo = async (user : User) => {
     
     const jobs : Job[] = await jobRepository
         .createQueryBuilder("job")
-        .select()
-        .where({
-            employeer : user.email,
-            isActive : 1
-        })
+        .leftJoinAndSelect("job.employeer", 'user')
+        .where("user.isVerifiedByAdmin = 1")
+        .andWhere("employeer = :email", {email : user.email})
+        .andWhere("isActive = 1")
         .getMany();
 
     return new RequestResult(200,'Success',jobs); 
@@ -69,7 +68,8 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
         .createQueryBuilder("job")
         .leftJoinAndSelect("job.employeer","user")
         .leftJoinAndSelect("user.employeerCompany", "employeerCompany")
-        .where("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
+        .where("user.isVerifiedByAdmin = 1")
+        .andWhere("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
         .andWhere("job.isActive = :jobId", {jobId : 1})
         .skip((page - 1)*limit)
         .take(limit)
@@ -90,7 +90,7 @@ export const deleteJobRepo = async (jobId : number) => {
                 isActive : () => '0'
             })
             .where("jobId = :jobId", {jobId : jobId})
-            .execute()
+            .execute();
 
         const updateJobEntityResult = await queryRunner.manager
             .createQueryBuilder()
@@ -99,7 +99,7 @@ export const deleteJobRepo = async (jobId : number) => {
                 isActive : () => '0'
             })
             .where("id = :jobId", {jobId : jobId})
-            .execute()
+            .execute();
 
         if(updateApplicationEntityResult.affected === 0 || updateJobEntityResult.affected === 0){
             throw new GlobalError(404, 'Failed to delete job');
@@ -121,7 +121,9 @@ export const getTotalNumberOfJobsRepo = async () => {
     
     const jobs : Job[] = await jobRepository
         .createQueryBuilder("job")
-        .where("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
+        .leftJoinAndSelect("job.employeer","employeer")
+        .where("employeer.isVerifiedByAdmin = 1")
+        .andWhere("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
         .andWhere("job.isActive = :jobId", {jobId : 1})
         .getMany();
     

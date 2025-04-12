@@ -1,9 +1,12 @@
+import { In, UpdateResult } from "typeorm";
 import { AppDataSource } from "../config/database"
 import { ContactNumber } from "../entities/contactNumber";
+import { Job } from "../entities/job";
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
 import { comparePasswordWithHash, generatePasswordHash } from "../service/userService";
 import { GlobalError, RequestResult } from "../types/types";
+import { Application } from "../entities/application";
 
 const userProfileRepository = AppDataSource.getRepository(UserProfile);
 const userRepository = AppDataSource.getRepository(User);
@@ -373,22 +376,71 @@ export const resetPassword = async (email : string, newPassword : string) => {
 
 
 export const updateUserAccountStatus = async (email : string, status : string) => {
-    
-    const result = await userRepository
-    .update(
-        {
-            email : email,
-        },
-        {
-            isVerifiedByAdmin : status === 'Activate' ? true : false,
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try{
+
+        const updateStatusResult : UpdateResult = await queryRunner.manager.getRepository(User)
+            .update(
+                {
+                    email : email,
+                },
+                {
+                    isVerifiedByAdmin : status === 'Activate' ? true : false,
+                }
+            );
+
+        // if(status != 'Activate'){
+
+        //     const employer = await queryRunner.manager.getRepository(User)
+        //         .createQueryBuilder('user')
+        //         .leftJoinAndSelect('user.postedJobs', 'postedJobs')
+        //         .where({
+        //             email : email
+        //         })
+        //         .getOne();
+            
+        //     const employeerPostedJobsId : number[] = [];
+        //     employer?.postedJobs.forEach(job => {
+        //         employeerPostedJobsId.push(job.id);
+        //     });
+            
+        //     await queryRunner.manager.getRepository(Job)
+        //         .createQueryBuilder('job')
+        //         .update({
+        //             isActive : false
+        //         })
+        //         .where({
+        //             id : In(employeerPostedJobsId)
+        //         })
+        //         .execute();
+                
+        //     await queryRunner.manager.getRepository(Application)
+        //         .createQueryBuilder('application')
+        //         .update({
+        //             isActive : false
+        //         })
+        //         .where("jobId IN(:...jobId)",{ jobId : employeerPostedJobsId})
+        //         .execute();
+            
+        // }
+            
+        if(updateStatusResult.affected != 0){   
+            await queryRunner.commitTransaction();
+            return new RequestResult(200, 'Account Status Updated', true);
         }
-    );
-    
-    if(result.affected != 0){   
-        return new RequestResult(200, 'Account Status Updated', true);
+        throw new GlobalError(401, 'Failed to update status');
     }
-    throw new GlobalError(401, 'Failed to update status');
+    catch(err){
+        await queryRunner.rollbackTransaction();
+        throw(err);
+    }
+    finally{
+        !queryRunner.isReleased ? await queryRunner.release() : null;
+    }
 } 
+
 
 export const getUserInfoForAdmin = async () => {
     
