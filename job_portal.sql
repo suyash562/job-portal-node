@@ -47,10 +47,4 @@ update job_portal_job set deadlineForApplying = '2025-04-01' where id = 16;
 update job_portal_notification set isRead = 0 where id = 4
 
 
-
---truncate table job_portal_user_profile
-
--- alter table job_portal_user_profile drop column phoneNumber;
--- alter table job_portal_user_profile drop UQ_ef5c4f511eebc4b26468ee89ac6
-
---insert into job_portal_user values('admin@gmail.com', 'Admin@123', 'admin');
+delete from job_portal_application where status = 'resume'

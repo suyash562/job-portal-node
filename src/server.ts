@@ -11,6 +11,7 @@ import interviewScheduleRouter from "./routes/interviewScheduleRouter";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { jobRouter } from "./routes/jobRoutes";
 import { notificationRouter } from "./routes/notificationRoutes";
+import rateLimit from "express-rate-limit";
 
 webSocketServer;
 
@@ -24,6 +25,8 @@ app.use(cors({
     credentials : true
 }));
 
+
+
 app.use('/user',userRouter);
 app.use('/job',jobRouter);
 app.use('/application',applicationRouter);
@@ -31,17 +34,10 @@ app.use('/interview',interviewScheduleRouter);
 app.use('/notification',notificationRouter);
 
 app.use(globalErrorHandler);
-
 AppDataSource.initialize().then(()=>{
-    // initializeWebSockerServer().then((value) => {
-        // console.log('WebSocket Server initialized on port 8080');
-
-        app.listen(PORT, ()=>{
-            console.log(`Server running on port ${PORT}`);
-        })
-    // }).catch(error => {
-    //     console.log(error);
-    // })    
+    app.listen(PORT, ()=>{
+        console.log(`Server running on port ${PORT}`);
+    })
 })
 .catch(err => {
     console.log(err);

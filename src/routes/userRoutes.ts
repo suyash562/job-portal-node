@@ -8,6 +8,7 @@ import { validate, validateUserData } from "../validators/validator";
 import { userSchema } from "../validators/validationSchema";
 import { validateParams } from "../validators/paramsValidator";
 import { verifyRole } from "../middleware/roleVerification";
+import rateLimit from "express-rate-limit";
 
 
 function getResumesCount(email : string) : string {
@@ -49,10 +50,17 @@ const multerUpload = multer({
     }
 });
 
+
+const loginRateLimiter = rateLimit({
+    windowMs : 1000 * 60 * 2,
+    max : 25,
+    message : 'Too many requests. Please try again later.'
+});
+
 const userRouter : Router = Router();
 
 userRouter.post('/register', multerUpload.single('resume'), validateUserData, registerController);
-userRouter.post('/login', validate(['email'], userSchema, 'user'), loginController);
+userRouter.post('/login', loginRateLimiter, validate(['email'], userSchema, 'user'), loginController);
 userRouter.get('/logout', logoutController);
 userRouter.get('/forgot-password/:userEmail', forgotPasswordController);
 userRouter.get('/userProfile', authenticateUserCredentials, getUserProfileController);
