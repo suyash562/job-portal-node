@@ -36,9 +36,9 @@ export const getEmployeerPostedJobsRepo = async (user : User) => {
     
     const jobs : Job[] = await jobRepository
         .createQueryBuilder("job")
-        .leftJoinAndSelect("job.employeer", 'user')
-        .where("user.isVerifiedByAdmin = 1")
-        .andWhere("employeer = :email", {email : user.email})
+        .leftJoinAndSelect("job.employeer", 'alias')
+        .where("alias.isVerifiedByAdmin = 1")
+        .andWhere("job.employeer = :email", {email : user.email})
         .andWhere("isActive = 1")
         .getMany();
 
