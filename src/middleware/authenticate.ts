@@ -10,7 +10,7 @@ export const authenticateUserCredentials = async (req : Request, res : Response,
             req.body.user = user;
             next();
         }
-        else{
+        else{            
             res.sendStatus(401);
         }
     }

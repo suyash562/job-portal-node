@@ -15,7 +15,11 @@ webSocketServer.on('connection', (ws, req) => {
     // webSocketClients.get(userEmail!)?.send(JSON.stringify({message : 'Connection successfull'}))
 });
 
+webSocketServer.on('close', () => {
+    console.log('connection closed');
+    webSocketClients.clear();
+})
 
-export const sendNotificationToActiveClient = (email : string, savedNotification : Notification) => {    
+export const sendNotificationToActiveClient = (email : string, savedNotification : Notification) => {      
     webSocketClients.get(email)?.send(JSON.stringify(savedNotification));
 }

@@ -1,12 +1,11 @@
-import { In, UpdateResult } from "typeorm";
+import { UpdateResult } from "typeorm";
 import { AppDataSource } from "../config/database"
 import { ContactNumber } from "../entities/contactNumber";
-import { Job } from "../entities/job";
 import { User } from "../entities/user"
 import { UserProfile } from "../entities/userProfile";
 import { comparePasswordWithHash, generatePasswordHash } from "../service/userService";
 import { GlobalError, RequestResult } from "../types/types";
-import { Application } from "../entities/application";
+
 
 const userProfileRepository = AppDataSource.getRepository(UserProfile);
 const userRepository = AppDataSource.getRepository(User);
@@ -255,7 +254,7 @@ export const updatePrimaryResume = async (userEmail : string, resumeNumber : num
     }
     throw new GlobalError(404, 'Failed to update primary resume');
 
-} 
+}
 
 
 export const decreaseResumeCountAndUpdatePrimaryResume = async (userEmail : string) => {
@@ -313,13 +312,11 @@ export const updateUserProfile = async (userProfile : Partial<UserProfile>, prof
         
         userProfile.contactNumbers = contactNumbers;
        
-        if(result.affected == 0){
-            queryRunner.rollbackTransaction();
-            throw new GlobalError(404, 'Failed to update profile');
+        if(result.affected != 0){
+            queryRunner.commitTransaction();
+            return new RequestResult(200, 'Profile has been updated', userProfile);
         }
-
-        queryRunner.commitTransaction();
-        return new RequestResult(200, 'Profile has been updated', userProfile);
+        throw new GlobalError(404, 'Failed to update profile');
     }
     catch(err){
         await queryRunner.rollbackTransaction();
@@ -390,41 +387,6 @@ export const updateUserAccountStatus = async (email : string, status : string) =
                     isVerifiedByAdmin : status === 'Activate' ? true : false,
                 }
             );
-
-        // if(status != 'Activate'){
-
-        //     const employer = await queryRunner.manager.getRepository(User)
-        //         .createQueryBuilder('user')
-        //         .leftJoinAndSelect('user.postedJobs', 'postedJobs')
-        //         .where({
-        //             email : email
-        //         })
-        //         .getOne();
-            
-        //     const employeerPostedJobsId : number[] = [];
-        //     employer?.postedJobs.forEach(job => {
-        //         employeerPostedJobsId.push(job.id);
-        //     });
-            
-        //     await queryRunner.manager.getRepository(Job)
-        //         .createQueryBuilder('job')
-        //         .update({
-        //             isActive : false
-        //         })
-        //         .where({
-        //             id : In(employeerPostedJobsId)
-        //         })
-        //         .execute();
-                
-        //     await queryRunner.manager.getRepository(Application)
-        //         .createQueryBuilder('application')
-        //         .update({
-        //             isActive : false
-        //         })
-        //         .where("jobId IN(:...jobId)",{ jobId : employeerPostedJobsId})
-        //         .execute();
-            
-        // }
             
         if(updateStatusResult.affected != 0){   
             await queryRunner.commitTransaction();

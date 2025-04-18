@@ -20,11 +20,18 @@ export const applyForJobRepo = async (user : User, jobId : number) => {
     const existingJob = await AppDataSource.getRepository(Job).findOneBy({
         id : jobId
     })
-    
-    if(existingUser && existingJob){
+    const employer = await AppDataSource.getRepository(User)
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.postedJobs', 'postedJobs')
+        .where('postedJobs.id = :jobId', {jobId : jobId})
+        .getOne();
+
+
+    if(existingUser && existingJob && employer){
         const newApplication : Application = new Application(new Date(),'Pending', existingUser, existingJob, true);
         const savedApplication : Application = await applicationRepository.save(newApplication);
-        return new RequestResult(200, 'Applied to job successfully', {applicationId : savedApplication.id, primaryResume : existingUser.profile.primaryResume});
+        
+        return new RequestResult(200, 'Applied to job successfully', {applicationId : savedApplication.id, employer : employer ,primaryResume : existingUser.profile.primaryResume});
     }
     throw new GlobalError(404, 'Failed to apply for job');
     

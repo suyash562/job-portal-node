@@ -7,6 +7,11 @@ import { GlobalError, RequestResult } from "../types/types";
 const userRepository = AppDataSource.getRepository(User);
 
 
+export const saveNewNotification = async (newNotification : Notification) => {
+    const savedNotification = await AppDataSource.getRepository(Notification).save(newNotification);
+    return new RequestResult(200, 'success', {savedNotification : savedNotification});
+}
+
 export const getNotificationsOfCurrentUserRepo = async (user : User) => {
 
     const getUser : User | null = await userRepository

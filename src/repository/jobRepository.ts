@@ -84,13 +84,11 @@ export const deleteJobRepo = async (jobId : number) => {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try{
-        const updateApplicationEntityResult = await queryRunner.manager.createQueryBuilder()
-            .update(Application)
-            .set({
-                isActive : () => '0'
-            })
-            .where("jobId = :jobId", {jobId : jobId})
-            .execute();
+
+        const jobApplcationExists = await queryRunner.manager.getRepository(Application)
+            .createQueryBuilder('application')
+            .where('jobId = :jobId', {jobId : jobId})
+            .getOne();
 
         const updateJobEntityResult = await queryRunner.manager
             .createQueryBuilder()
@@ -100,8 +98,22 @@ export const deleteJobRepo = async (jobId : number) => {
             })
             .where("id = :jobId", {jobId : jobId})
             .execute();
+            
+        if(jobApplcationExists){
+            const updateApplicationEntityResult = await queryRunner.manager.createQueryBuilder()
+            .update(Application)
+            .set({
+                isActive : () => '0'
+            })
+            .where("jobId = :jobId", {jobId : jobId})
+            .execute();
 
-        if(updateApplicationEntityResult.affected === 0 || updateJobEntityResult.affected === 0){
+            if(updateApplicationEntityResult.affected === 0 ){
+                throw new GlobalError(404, 'Failed to delete job');
+            }
+        }
+
+        if(updateJobEntityResult.affected === 0 ){
             throw new GlobalError(404, 'Failed to delete job');
         }
 

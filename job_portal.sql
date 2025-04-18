@@ -42,7 +42,7 @@ exec sp_help job_portal_notification;
 
 
 update job_portal_user set newNotifications = 0 where newNotifications = 1;
-update job_portal_application set status = 'Pending';
+update job_portal_application set isActive = 1;
 update job_portal_job set isActive = 1;
 update job_portal_notification set isRead = 0 where id = 4
 

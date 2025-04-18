@@ -11,7 +11,6 @@ import interviewScheduleRouter from "./routes/interviewScheduleRouter";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { jobRouter } from "./routes/jobRoutes";
 import { notificationRouter } from "./routes/notificationRoutes";
-import rateLimit from "express-rate-limit";
 
 webSocketServer;
 
