@@ -64,8 +64,20 @@ export const getJobByIdController = async (req : Request, res : Response, next :
 export const getAllJobsController = async (req : Request, res : Response, next : NextFunction) => {
     try{        
         const page : number = parseInt(req.query.page as string) || 1;
-        const limit : number = parseInt(req.query.limit as string) || 5;        
-        const result : RequestResult = await getAllJobsService(page, limit);
+        const limit : number = parseInt(req.query.limit as string) || 5;  
+        const company : string = req.query.company as string;
+        const workMode : string = req.query.workMode as string;
+        const employmentType : string = req.query.employmentType as string;
+        const sort : string = req.query.sort as string;
+              
+        const filterOptions = {
+            company : company === 'null' ? undefined : company,
+            workMode : workMode === 'null' ? undefined : workMode,
+            employmentType : employmentType === 'null' ? undefined : employmentType,
+            sort : sort === 'null' ? undefined : sort
+        }
+
+        const result : RequestResult = await getAllJobsService(page, limit, filterOptions);
         res.status(result.statusCode).send(result);
     }
     catch(err){

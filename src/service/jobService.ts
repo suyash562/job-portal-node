@@ -30,8 +30,8 @@ export const getJobByIdService = async (jobId: number) => {
     return await getJobByIdRepo(jobId);
 }
 
-export const getAllJobsService = async (page: number, limit: number) => {
-    return await getAllJobsRepo(page, limit);
+export const getAllJobsService = async (page: number, limit: number, filterOptions : Object) => {
+    return await getAllJobsRepo(page, limit, filterOptions);
 }
 
 export const getTotalNumberOfJobsService = async () => {

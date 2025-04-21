@@ -22,6 +22,7 @@ export const addJobRepo = async (user : User, job : Job) => {
     throw new GlobalError(404,'Failed to add job post');
 }
 
+
 export const updateJobRepo = async (jobIdToUpdate : number, job : Job) => {
 
     const updateResult = await jobRepository.update(jobIdToUpdate,job);
@@ -31,6 +32,7 @@ export const updateJobRepo = async (jobIdToUpdate : number, job : Job) => {
     throw new GlobalError(404, 'Failed to update job post');
 
 }
+
 
 export const getEmployeerPostedJobsRepo = async (user : User) => {
     
@@ -45,6 +47,7 @@ export const getEmployeerPostedJobsRepo = async (user : User) => {
     return new RequestResult(200,'Success',jobs); 
 
 }
+
 
 export const getJobByIdRepo = async (jobId : number) => {
     
@@ -62,8 +65,10 @@ export const getJobByIdRepo = async (jobId : number) => {
 
 }
 
-export const getAllJobsRepo = async (page : number, limit : number) => {
 
+export const getAllJobsRepo = async (page : number, limit : number, filterOptions : any) => {
+
+    
     const jobs : Job[] = await jobRepository
         .createQueryBuilder("job")
         .leftJoinAndSelect("job.employeer","user")
@@ -71,13 +76,45 @@ export const getAllJobsRepo = async (page : number, limit : number) => {
         .where("user.isVerifiedByAdmin = 1")
         .andWhere("job.deadlineForApplying >= :currentDate", {currentDate : (new Date().toISOString().split('T')[0])})
         .andWhere("job.isActive = :jobId", {jobId : 1})
-        .skip((page - 1)*limit)
-        .take(limit)
+        // .skip((page - 1)*limit)
+        // .take(limit)
+        .orderBy("job.title", filterOptions.sort == 'A-Z' ? "ASC" : "DESC")
         .getMany();        
+        
+    let filteredJobs : Job[] = jobs;
     
-    return new RequestResult(200,'Success',jobs); 
+    if(filterOptions.company || filterOptions.workMode || filterOptions.employmentType){
+        
+        filteredJobs = jobs.filter((job) => {
+        
+            const company = filterOptions.company ? (job.employeer!.employeerCompany!.name.toLowerCase() === filterOptions.company) : false;
+            const workMode = filterOptions.workMode ? (job.workMode === filterOptions.workMode) : false;
+            const employmentType = filterOptions.employmentType ? (job.employementType === filterOptions.employmentType) : false;
+            
+            
+            if(filterOptions.workMode && filterOptions.employmentType && filterOptions.company){
+                return workMode && employmentType && company;
+            }
+            else if(filterOptions.workMode && filterOptions.employmentType){
+                return workMode && employmentType;
+            }
+            else if(filterOptions.employmentType && filterOptions.company){
+                return employmentType && company;
+            }
+            else if(filterOptions.workMode && filterOptions.company){
+                return workMode && company;
+            }
+         
+            return workMode || employmentType || company;
+        });
+    }
+
+    filteredJobs = filteredJobs.slice((page - 1)*limit, (page - 1)*limit + limit);
+
+    return new RequestResult(200,'Success',filteredJobs); 
 
 }
+
 
 export const deleteJobRepo = async (jobId : number) => {
     const queryRunner = AppDataSource.createQueryRunner();
@@ -128,6 +165,7 @@ export const deleteJobRepo = async (jobId : number) => {
         !queryRunner.isReleased ? await queryRunner.release() : null;
     }
 }
+
 
 export const getTotalNumberOfJobsRepo = async () => {
     
