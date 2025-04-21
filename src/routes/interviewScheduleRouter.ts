@@ -20,7 +20,6 @@ interviewScheduleRouter.post(
     ], interviewScheduleSchema, 'interviewSchedule'),
     validateDate('interviewSchedule', 'interviewDate'),
     validateTime('interviewSchedule', 'interviewTime'),
-    verifyRole('employeer'),
     addInterviewScheduleController
 );
     

@@ -71,10 +71,10 @@ export const getAllJobsController = async (req : Request, res : Response, next :
         const sort : string = req.query.sort as string;
               
         const filterOptions = {
-            company : company === 'null' ? undefined : company,
-            workMode : workMode === 'null' ? undefined : workMode,
-            employmentType : employmentType === 'null' ? undefined : employmentType,
-            sort : sort === 'null' ? undefined : sort
+            company : (company === 'null' || company === undefined) ? '' : company,
+            workMode : (workMode === 'null' || workMode === undefined) ? '' : workMode,
+            employmentType : (employmentType === 'null' || employmentType == undefined) ? '' : employmentType,
+            sort : (sort === 'null' || sort === undefined) ? '' : sort
         }
 
         const result : RequestResult = await getAllJobsService(page, limit, filterOptions);

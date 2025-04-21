@@ -1,5 +1,26 @@
 import { Router } from "express";
-import { approveEmployerRequestController, deleteResumeController, forgotPasswordController, getAllRegisteredUsersForAdminController, getNotVerifiedEmployersController, getResumeByIdController, getUserInfoForAdminController, getUserProfileController, getUserRoleController, loginController, logoutController, registerController, resendOtpController, resetPasswordController, updatePrimaryResumeController, updateUserAccountStatusController, updateUserPasswordController, updateUserProfileController, uploadResumeController, verifyOtpController } from "../controller/userController";
+import { 
+  approveEmployerRequestController, 
+  deleteResumeController, 
+  forgotPasswordController, 
+  getAllRegisteredUsersForAdminController, 
+  getNotVerifiedEmployersController, 
+  getResumeByIdController, 
+  getUserInfoForAdminController, 
+  getUserProfileController, 
+  getUserRoleController, 
+  loginController, 
+  logoutController,
+  registerController, 
+  resendOtpController, 
+  resetPasswordController, 
+  updatePrimaryResumeController, 
+  updateUserAccountStatusController, 
+  updateUserPasswordController, 
+  updateUserProfileController, 
+  uploadResumeController, 
+  verifyOtpController 
+} from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
 import multer from 'multer';
 import path from 'path';
