@@ -28,9 +28,9 @@ export class EmployeerCompany{
     @Column({type : "int"})
     averageRating : number;
 
-    @OneToOne(()=>User, (user) => user.employeerCompany, {onDelete : 'CASCADE', onUpdate : 'CASCADE'})
+    @OneToOne(() => User, (user) => user.employeerCompany, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
     @JoinColumn()
-    user! : User;
+    user!: User;
 
     constructor(
         name : string,

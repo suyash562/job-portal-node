@@ -29,7 +29,7 @@ select * from interview_schedule_application;
  update job_portal_user set isVerifiedByAdmin = 1 where email = 'emp1@gmail.com';
 -- update job_portal_user_profile set primaryResume = 0, resumeCount = 0 where id = 35;
 
-delete from job_portal_user where role != 'admin';
+delete from job_portal_user where email = 's9579100@gmail.com';
 delete from job_portal_job 
 delete from job_portal_application;
 delete from interview_schedule_application;

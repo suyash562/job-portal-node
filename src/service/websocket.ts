@@ -1,4 +1,4 @@
-import WebSocket, { WebSocketServer }  from "ws";
+import WebSocket from "ws";
 import { Notification } from "../entities/notification";
 
 export const webSocketServer = new WebSocket.Server({port : 8080});

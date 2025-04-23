@@ -12,7 +12,6 @@ import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { jobRouter } from "./routes/jobRoutes";
 import { notificationRouter } from "./routes/notificationRoutes";
 
-webSocketServer;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,11 +32,12 @@ app.use('/interview',interviewScheduleRouter);
 app.use('/notification',notificationRouter);
 
 app.use(globalErrorHandler);
+
 AppDataSource.initialize().then(()=>{
     app.listen(PORT, ()=>{
         console.log(`Server running on port ${PORT}`);
     })
 })
 .catch(err => {
-    console.log(err);
-})
+    console.log('Failed to initialize database connection');
+});

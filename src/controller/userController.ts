@@ -9,8 +9,7 @@ import {
     getUserProfileService, 
     getUserRoleService, 
     loginService,  
-    registerService, 
-    removeSentOtpFromMap, 
+    registerService,  
     resetPasswordService, 
     sendOtpMail, 
     updatePrimaryResumeService, 
@@ -121,19 +120,6 @@ export const resetPasswordController = async (req : Request, res : Response, nex
         next(err);
     }
 }
-
-
-// export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
-//     try{     
-//         const {email} = req.body;
-//         await deleteNotVerifiedUserService(email);
-//         removeSentOtpFromMap(email);
-//         res.status(200).send(true);
-//     }
-//     catch(err){
-//         next(err);
-//     }
-// }
 
 
 export const loginController = async function(req : Request, res : Response, next : NextFunction){
@@ -347,3 +333,19 @@ export const getUserInfoForAdminController = async (req : Request, res : Respons
         next(err);
     }
 }
+
+
+
+
+// export const deleteUserIfNotVerifiedController = async (req : Request, res : Response, next : NextFunction) => {
+//     try{     
+//         const {email} = req.body;
+//         await deleteNotVerifiedUserService(email);
+//         removeSentOtpFromMap(email);
+//         res.status(200).send(true);
+//     }
+//     catch(err){
+//         next(err);
+//     }
+// }
+

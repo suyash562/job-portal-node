@@ -22,14 +22,14 @@ import {
   verifyOtpController 
 } from "../controller/userController";
 import { authenticateUserCredentials } from "../middleware/authenticate";
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import { validate, validateUserData } from "../validators/validator";
 import { userSchema } from "../validators/validationSchema";
 import { validateParams } from "../validators/paramsValidator";
 import { verifyRole } from "../middleware/roleVerification";
 import rateLimit from "express-rate-limit";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 
 function getResumesCount(email : string) : string {

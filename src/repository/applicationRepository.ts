@@ -40,7 +40,7 @@ export const applyForJobRepo = async (user : User, jobId : number) => {
 
 export const getApplicationByIdRepo = async (applicationId : number) => {
     
-    const application : Application | null= await applicationRepository
+    const application : Application | null = await applicationRepository
         .createQueryBuilder('application')
         .leftJoinAndSelect("application.user", "user")
         .leftJoinAndSelect("user.profile", "profile")
